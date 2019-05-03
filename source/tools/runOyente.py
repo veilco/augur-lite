@@ -48,7 +48,6 @@ def generate_inputs():
     inputs = []
     for directory, _, filenames in walk(resolveRelativePath('../contracts')):
         if 'libraries' in directory: continue
-        if 'legacy_reputation' in directory: continue
         for filename in filenames:
             name = path.splitext(filename)[0]
             extension = path.splitext(filename)[1]

@@ -1,4 +1,4 @@
-pragma solidity 0.4.20;
+pragma solidity 0.4.25;
 
 
 import 'trading/IShareToken.sol';
@@ -33,19 +33,6 @@ contract ShareToken is DelegationTarget, ITyped, Initializable, VariableSupplyTo
     function destroyShares(address _owner, uint256 _fxpValue) external onlyWhitelistedCallers returns(bool) {
         burn(_owner, _fxpValue);
         return true;
-    }
-
-    function trustedOrderTransfer(address _source, address _destination, uint256 _attotokens) public onlyCaller("CreateOrder") onlyInGoodTimes afterInitialized returns (bool) {
-        return internalTransfer(_source, _destination, _attotokens);
-    }
-
-    function trustedFillOrderTransfer(address _source, address _destination, uint256 _attotokens) public onlyCaller("FillOrder") onlyInGoodTimes afterInitialized returns (bool) {
-        return internalTransfer(_source, _destination, _attotokens);
-    }
-
-    // Allowed to run in bad time so orders can be canceled
-    function trustedCancelOrderTransfer(address _source, address _destination, uint256 _attotokens) public onlyCaller("CancelOrder") afterInitialized returns (bool) {
-        return internalTransfer(_source, _destination, _attotokens);
     }
 
     function getTypeName() public view returns(bytes32) {

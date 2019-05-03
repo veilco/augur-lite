@@ -6,14 +6,9 @@
         "sourceMap": true,
         "outDir": "output",
         "rootDir": "source",
-        "typeRoots": [
-          "node_modules/@types",
-          "typings"
-        ],
+        "typeRoots": ["node_modules/@types", "typings"],
         "paths": {
-            "*": [
-                "./typings/*"
-            ]
+            "*": ["./typings/*"]
         },
         "watch": false,
         "emitDecoratorMetadata": true,

@@ -1,9 +1,7 @@
-pragma solidity 0.4.20;
+pragma solidity 0.4.25;
 
 /**
  * The Controller is used to manage whitelisting of contracts and and halt the normal use of Augur’s contracts (e.g., if there is a vulnerability found in Augur).  There is only one instance of the Controller, and it gets uploaded to the blockchain before all of the other contracts.  The `owner` attribute of the Controller is set to the address that called the constructor of the Controller.  The Augur team can then call functions from this address to interact with the Controller.
- *
- * Initially, Augur will have a “dev mode” that that can be enabled to allow Augur’s team to suicide funds, extract Ether or Tokens from a specific contract (in case funds inadvertently get sent somewhere they shouldn’t have), and update the Controller of a target contract to a new Controller.  Eventually, the plan is to remove this mode so that this functionality will no longer be available to anyone, including the Augur team.  At that point, the `owner` address will only be able to the `emergencyStop` and `release` functions.
  */
 
 import 'IAugur.sol';
@@ -41,7 +39,7 @@ contract Controller is IController {
         _;
     }
 
-    function Controller() public {
+    constructor() public {
         owner = msg.sender;
         whitelist[msg.sender] = true;
     }

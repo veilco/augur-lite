@@ -1,4 +1,5 @@
-pragma solidity 0.4.20;
+pragma solidity 0.4.25;
+
 
 import 'libraries/Delegator.sol';
 import 'reporting/IInitialReporter.sol';
