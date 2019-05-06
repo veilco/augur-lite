@@ -6,5 +6,5 @@ import 'libraries/ITyped.sol';
 
 
 contract ITime is Controlled, ITyped {
-    function getTimestamp() external view returns (uint256);
+  function getTimestamp() external view returns (uint256);
 }

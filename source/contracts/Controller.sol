@@ -12,100 +12,100 @@ import 'ITime.sol';
 
 
 contract Controller is IController {
-    struct ContractDetails {
-        bytes32 name;
-        address contractAddress;
-        bytes20 commitHash;
-        bytes32 bytecodeHash;
-    }
+  struct ContractDetails {
+    bytes32 name;
+    address contractAddress;
+    bytes20 commitHash;
+    bytes32 bytecodeHash;
+  }
 
-    address public owner;
-    mapping(address => bool) public whitelist;
-    mapping(bytes32 => ContractDetails) public registry;
-    bool public stopped = false;
+  address public owner;
+  mapping(address => bool) public whitelist;
+  mapping(bytes32 => ContractDetails) public registry;
+  bool public stopped = false;
 
-    modifier onlyOwnerCaller {
-        require(msg.sender == owner);
-        _;
-    }
+  constructor() public {
+    owner = msg.sender;
+    whitelist[msg.sender] = true;
+  }
 
-    modifier onlyInBadTimes {
-        require(stopped);
-        _;
-    }
+  modifier onlyOwnerCaller {
+    require(msg.sender == owner);
+    _;
+  }
 
-    modifier onlyInGoodTimes {
-        require(!stopped);
-        _;
-    }
+  modifier onlyInBadTimes {
+    require(stopped);
+    _;
+  }
 
-    constructor() public {
-        owner = msg.sender;
-        whitelist[msg.sender] = true;
-    }
+  modifier onlyInGoodTimes {
+    require(!stopped);
+    _;
+  }
 
-    /*
-     * Contract Administration
-     */
+  /*
+   * Contract Administration
+   */
 
-    function addToWhitelist(address _target) public onlyOwnerCaller returns (bool) {
-        whitelist[_target] = true;
-        return true;
-    }
+  function addToWhitelist(address _target) public onlyOwnerCaller returns (bool) {
+    whitelist[_target] = true;
+    return true;
+  }
 
-    function removeFromWhitelist(address _target) public onlyOwnerCaller returns (bool) {
-        whitelist[_target] = false;
-        return true;
-    }
+  function removeFromWhitelist(address _target) public onlyOwnerCaller returns (bool) {
+    whitelist[_target] = false;
+    return true;
+  }
 
-    function assertIsWhitelisted(address _target) public view returns (bool) {
-        require(whitelist[_target]);
-        return true;
-    }
+  function assertIsWhitelisted(address _target) public view returns (bool) {
+    require(whitelist[_target]);
+    return true;
+  }
 
-    function registerContract(bytes32 _key, address _address, bytes20 _commitHash, bytes32 _bytecodeHash) public onlyOwnerCaller returns (bool) {
-        require(registry[_key].contractAddress == address(0));
-        registry[_key] = ContractDetails(_key, _address, _commitHash, _bytecodeHash);
-        return true;
-    }
+  function registerContract(bytes32 _key, address _address, bytes20 _commitHash, bytes32 _bytecodeHash) public onlyOwnerCaller returns (bool) {
+    require(registry[_key].contractAddress == address(0));
+    registry[_key] = ContractDetails(_key, _address, _commitHash, _bytecodeHash);
+    return true;
+  }
 
-    function getContractDetails(bytes32 _key) public view returns (address, bytes20, bytes32) {
-        ContractDetails storage _details = registry[_key];
-        return (_details.contractAddress, _details.commitHash, _details.bytecodeHash);
-    }
+  function getContractDetails(bytes32 _key) public view returns (address, bytes20, bytes32) {
+    ContractDetails storage _details = registry[_key];
+    return (_details.contractAddress, _details.commitHash, _details.bytecodeHash);
+  }
 
-    function lookup(bytes32 _key) public view returns (address) {
-        return registry[_key].contractAddress;
-    }
+  function lookup(bytes32 _key) public view returns (address) {
+    return registry[_key].contractAddress;
+  }
 
-    function transferOwnership(address _newOwner) public onlyOwnerCaller returns (bool) {
-        owner = _newOwner;
-        return true;
-    }
+  function transferOwnership(address _newOwner) public onlyOwnerCaller returns (bool) {
+    owner = _newOwner;
+    return true;
+  }
 
-    function emergencyStop() public onlyOwnerCaller onlyInGoodTimes returns (bool) {
-        getVeilAugur().logEscapeHatchChanged(true);
-        stopped = true;
-        return true;
-    }
+  function emergencyStop() public onlyOwnerCaller onlyInGoodTimes returns (bool) {
+    getVeilAugur().logEscapeHatchChanged(true);
+    stopped = true;
+    return true;
+  }
 
-    function stopInEmergency() public view onlyInGoodTimes returns (bool) {
-        return true;
-    }
+  function stopInEmergency() public view onlyInGoodTimes returns (bool) {
+    return true;
+  }
 
-    function onlyInEmergency() public view onlyInBadTimes returns (bool) {
-        return true;
-    }
+  function onlyInEmergency() public view onlyInBadTimes returns (bool) {
+    return true;
+  }
 
-    /*
-     * Helper functions
-     */
+  /*
+   * Helper functions
+   */
 
-    function getVeilAugur() public view returns (IVeilAugur) {
-        return IVeilAugur(lookup("VeilAugur"));
-    }
+  function getVeilAugur() public view returns (IVeilAugur) {
+    return IVeilAugur(lookup("VeilAugur"));
+  }
 
-    function getTimestamp() public view returns (uint256) {
-        return ITime(lookup("Time")).getTimestamp();
-    }
+  function getTimestamp() public view returns (uint256) {
+    return ITime(lookup("Time")).getTimestamp();
+  }
 }

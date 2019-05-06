@@ -1,16 +1,18 @@
-import { CompilerConfiguration } from '../libraries/CompilerConfiguration';
+import { CompilerConfiguration } from "../libraries/CompilerConfiguration";
 import { ContractCompiler } from "../libraries/ContractCompiler";
-require('source-map-support').install();
+require("source-map-support").install();
 
 async function doWork(): Promise<void> {
-    const configuration = CompilerConfiguration.create();
-    const compiler = new ContractCompiler(configuration);
-    await compiler.compileContracts();
+  const configuration = CompilerConfiguration.create();
+  const compiler = new ContractCompiler(configuration);
+  await compiler.compileContracts();
 }
 
-doWork().then(() => {
+doWork()
+  .then(() => {
     process.exit();
-}).catch(error => {
+  })
+  .catch(error => {
     console.log(error);
     process.exit();
-});
+  });

@@ -8,32 +8,32 @@ import { NetworkConfiguration } from "../libraries/NetworkConfiguration";
 require("source-map-support").install();
 
 async function doWork(): Promise<void> {
-    const compilerConfiguration = CompilerConfiguration.create();
-    const contractCompiler = new ContractCompiler(compilerConfiguration);
-    const compiledContracts = await contractCompiler.compileContracts();
+  const compilerConfiguration = CompilerConfiguration.create();
+  const contractCompiler = new ContractCompiler(compilerConfiguration);
+  const compiledContracts = await contractCompiler.compileContracts();
 
-    const networkConfiguration = NetworkConfiguration.create();
-    const connector = new Connector(networkConfiguration);
-    const accountManager = new AccountManager(
-        connector,
-        networkConfiguration.privateKey
-    );
+  const networkConfiguration = NetworkConfiguration.create();
+  const connector = new Connector(networkConfiguration);
+  const accountManager = new AccountManager(
+    connector,
+    networkConfiguration.privateKey
+  );
 
-    const deployerConfiguration = DeployerConfiguration.create();
-    const contractDeployer = new ContractDeployer(
-        deployerConfiguration,
-        connector,
-        accountManager,
-        compiledContracts
-    );
-    await contractDeployer.deploy();
+  const deployerConfiguration = DeployerConfiguration.create();
+  const contractDeployer = new ContractDeployer(
+    deployerConfiguration,
+    connector,
+    accountManager,
+    compiledContracts
+  );
+  await contractDeployer.deploy();
 }
 
 doWork()
-    .then(() => {
-        process.exit();
-    })
-    .catch(error => {
-        console.log(error);
-        process.exit();
-    });
+  .then(() => {
+    process.exit();
+  })
+  .catch(error => {
+    console.log(error);
+    process.exit();
+  });

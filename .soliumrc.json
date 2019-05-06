@@ -9,7 +9,7 @@
     "uppercase": "off",
     "operator-whitespace": "off",
     "array-declarations": "error",
-    "indentation": ["error", 4],
+    "indentation": ["error", 2],
     "quotes": "off",
     "conditionals-whitespace": "error",
     "comma-whitespace": "error",
