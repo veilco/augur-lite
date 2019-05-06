@@ -48,17 +48,17 @@ contract ShareToken is DelegationTarget, ITyped, Initializable, VariableSupplyTo
     }
 
     function onTokenTransfer(address _from, address _to, uint256 _value) internal returns (bool) {
-        controller.getAugur().logShareTokensTransferred(market.getUniverse(), _from, _to, _value);
+        controller.getVeilAugur().logShareTokensTransferred(market.getUniverse(), _from, _to, _value);
         return true;
     }
 
     function onMint(address _target, uint256 _amount) internal returns (bool) {
-        controller.getAugur().logShareTokenMinted(market.getUniverse(), _target, _amount);
+        controller.getVeilAugur().logShareTokenMinted(market.getUniverse(), _target, _amount);
         return true;
     }
 
     function onBurn(address _target, uint256 _amount) internal returns (bool) {
-        controller.getAugur().logShareTokenBurned(market.getUniverse(), _target, _amount);
+        controller.getVeilAugur().logShareTokenBurned(market.getUniverse(), _target, _amount);
         return true;
     }
 }

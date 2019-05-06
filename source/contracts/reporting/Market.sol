@@ -6,14 +6,13 @@ import 'libraries/ITyped.sol';
 import 'libraries/Initializable.sol';
 import 'libraries/Ownable.sol';
 import 'reporting/IUniverse.sol';
-import 'reporting/IReportingParticipant.sol';
 import 'libraries/token/ERC20.sol';
 import 'trading/IShareToken.sol';
 import 'factories/ShareTokenFactory.sol';
-import 'factories/InitialReporterFactory.sol';
 import 'libraries/math/SafeMathUint256.sol';
 import 'libraries/math/SafeMathInt256.sol';
-import 'reporting/IInitialReporter.sol';
+import 'reporting/IMailbox.sol';
+import 'factories/MailboxFactory.sol';
 
 
 contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
@@ -37,23 +36,27 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     uint256 private endTime;
     uint256 private numOutcomes;
     bytes32 private winningPayoutDistributionHash;
-    uint256 private finalizationTime;
-    address private marketCreatorMailbox;
+    uint256 private resolutionTime;
+    address private oracle;
+    IMailbox private marketCreatorMailbox;
+    uint256[] internal payoutNumerators;
+    bool internal invalid;
+    // TODO: Variable packing
 
     // Collections
-    IReportingParticipant[] public participants;
     IShareToken[] private shareTokens;
 
-    function initialize(IUniverse _universe, uint256 _endTime, uint256 _feePerEthInAttoeth, ERC20 _denominationToken, address _designatedReporterAddress, address _creator, uint256 _numOutcomes, uint256 _numTicks) public onlyInGoodTimes beforeInitialized returns (bool _success) {
+    function initialize(IUniverse _universe, uint256 _endTime, uint256 _feePerEthInAttoeth, ERC20 _denominationToken, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public onlyInGoodTimes beforeInitialized returns (bool _success) {
         endInitialization();
         require(MIN_OUTCOMES <= _numOutcomes && _numOutcomes <= MAX_OUTCOMES);
         require(_numTicks > 0);
-        require(_designatedReporterAddress != NULL_ADDRESS);
+        require(_oracle != NULL_ADDRESS);
         require((_numTicks >= _numOutcomes));
         require(_feePerEthInAttoeth <= MAX_FEE_PER_ETH_IN_ATTOETH);
         require(_creator != NULL_ADDRESS);
         require(controller.getTimestamp() < _endTime);
         // require(address(_denominationToken) == controller.lookup("DenominationToken")); // Mert
+        // TODO: Make sure denomination token is ERC20
         universe = _universe;
         owner = _creator;
         endTime = _endTime;
@@ -61,9 +64,8 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
         numTicks = _numTicks;
         feeDivisor = _feePerEthInAttoeth == 0 ? 0 : 1 ether / _feePerEthInAttoeth;
         denominationToken = _denominationToken;
-        InitialReporterFactory _initialReporterFactory = InitialReporterFactory(controller.lookup("InitialReporterFactory"));
-        participants.push(_initialReporterFactory.createInitialReporter(controller, this, _designatedReporterAddress));
-        marketCreatorMailbox = owner;
+        oracle = _oracle;
+        marketCreatorMailbox = MailboxFactory(controller.lookup("MailboxFactory")).createMailbox(controller, owner, this);
         for (uint256 _outcome = 0; _outcome < numOutcomes; _outcome++) {
             shareTokens.push(createShareToken(_outcome));
         }
@@ -75,27 +77,19 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
         return ShareTokenFactory(controller.lookup("ShareTokenFactory")).createShareToken(controller, this, _outcome);
     }
 
-    function doInitialReport(uint256[] _payoutNumerators, bool _invalid) public onlyInGoodTimes returns (bool) {
-        IInitialReporter _initialReporter = getInitialReporter();
+    function resolve(uint256[] _payoutNumerators, bool _invalid) public onlyInGoodTimes returns (bool) {
         uint256 _timestamp = controller.getTimestamp();
-        require(_initialReporter.getReportTimestamp() == 0);
+        require(getResolutionTime() == 0);
         require(_timestamp > endTime);
-        bool _isDesignatedReporter = msg.sender == _initialReporter.getDesignatedReporter();
-        require(_isDesignatedReporter);
-        bytes32 _payoutDistributionHash = derivePayoutDistributionHash(_payoutNumerators, _invalid);
-        _initialReporter.report(msg.sender, _payoutDistributionHash, _payoutNumerators, _invalid);
-        controller.getAugur().logInitialReportSubmitted(universe, msg.sender, this, _isDesignatedReporter, _payoutNumerators, _invalid);
-        return true;
-    }
-
-    function finalize() public onlyInGoodTimes returns (bool) {
+        require(msg.sender == getOracle());
         require(winningPayoutDistributionHash == bytes32(0));
 
-        require(getInitialReporter().getReportTimestamp() != 0);
-        winningPayoutDistributionHash = participants[participants.length-1].getPayoutDistributionHash();
+        resolutionTime = _timestamp;
+        winningPayoutDistributionHash = derivePayoutDistributionHash(_payoutNumerators, _invalid);
+        payoutNumerators = _payoutNumerators;
+        invalid = _invalid;
         universe.decrementOpenInterestFromMarket(shareTokens[0].totalSupply().mul(numTicks));
-        finalizationTime = controller.getTimestamp();
-        controller.getAugur().logMarketFinalized(universe);
+        controller.getVeilAugur().logMarketResolved(universe);
         return true;
     }
 
@@ -125,58 +119,38 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
         return winningPayoutDistributionHash;
     }
 
-    function isFinalized() public view returns (bool) {
+    function isResolved() public view returns (bool) {
         return winningPayoutDistributionHash != bytes32(0);
-    }
-
-    function getDesignatedReporter() public view returns (address) {
-        return getInitialReporter().getDesignatedReporter();
-    }
-
-    function designatedReporterShowed() public view returns (bool) {
-        return getInitialReporter().designatedReporterShowed();
     }
 
     function getEndTime() public view returns (uint256) {
         return endTime;
     }
 
-    function getMarketCreatorMailbox() public view returns (address) {
+    function getMarketCreatorMailbox() public view returns (IMailbox) {
         return marketCreatorMailbox;
     }
 
     function isInvalid() public view returns (bool) {
-        require(isFinalized());
-        return getWinningReportingParticipant().isInvalid();
+        require(isResolved());
+        return invalid;
     }
 
-    function getInitialReporter() public view returns (IInitialReporter) {
-        return IInitialReporter(participants[0]);
-    }
-
-    function getInitialReporterAddress() public view returns (address) {
-        return address(participants[0]);
-    }
-
-    function getReportingParticipant(uint256 _index) public view returns (IReportingParticipant) {
-        return participants[_index];
-    }
-
-    function getWinningReportingParticipant() public view returns (IReportingParticipant) {
-        return participants[participants.length-1];
+    function getOracle() public view returns (address) {
+        return address(oracle);
     }
 
     function getWinningPayoutNumerator(uint256 _outcome) public view returns (uint256) {
-        require(isFinalized());
-        return getWinningReportingParticipant().getPayoutNumerator(_outcome);
+        require(isResolved());
+        return payoutNumerators[_outcome];
     }
 
     function getUniverse() public view returns (IUniverse) {
         return universe;
     }
 
-    function getFinalizationTime() public view returns (uint256) {
-        return finalizationTime;
+    function getResolutionTime() public view returns (uint256) {
+        return resolutionTime;
     }
 
     function getNumberOfOutcomes() public view returns (uint256) {
@@ -193,10 +167,6 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
     function getShareToken(uint256 _outcome) public view returns (IShareToken) {
         return shareTokens[_outcome];
-    }
-
-    function getNumParticipants() public view returns (uint256) {
-        return participants.length;
     }
 
     function derivePayoutDistributionHash(uint256[] _payoutNumerators, bool _invalid) public view returns (bytes32) {
@@ -221,29 +191,18 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
         return getShareToken(_shadyShareToken.getOutcome()) == _shadyShareToken;
     }
 
-    function isContainerForReportingParticipant(IReportingParticipant _shadyReportingParticipant) public view returns (bool) {
-        // Participants is implicitly bounded by the floor of the initial report REP cost to be no more than 21
-        for (uint256 i = 0; i < participants.length; i++) {
-            if (_shadyReportingParticipant == participants[i]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function onTransferOwnership(address _owner, address _newOwner) internal returns (bool) {
-        controller.getAugur().logMarketTransferred(getUniverse(), _owner, _newOwner);
+        controller.getVeilAugur().logMarketTransferred(getUniverse(), _owner, _newOwner);
         return true;
     }
 
     function assertBalances() public view returns (bool) {
         // Escrowed funds for open orders
         uint256 _expectedBalance = 0;
-        // Market Open Interest. If we're finalized we need actually calculate the value
-        if (isFinalized()) {
-            IReportingParticipant _winningReportingPartcipant = getWinningReportingParticipant();
+        // Market Open Interest. If we're resolved we need actually calculate the value
+        if (isResolved()) {
             for (uint256 i = 0; i < numOutcomes; i++) {
-                _expectedBalance = _expectedBalance.add(shareTokens[i].totalSupply().mul(_winningReportingPartcipant.getPayoutNumerator(i)));
+                _expectedBalance = _expectedBalance.add(shareTokens[i].totalSupply().mul(getWinningPayoutNumerator(i)));
             }
         } else {
             _expectedBalance = _expectedBalance.add(shareTokens[0].totalSupply().mul(numTicks));

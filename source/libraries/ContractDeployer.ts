@@ -9,7 +9,7 @@ import { Abi, AbiFunction } from "ethereum";
 import { DeployerConfiguration } from "./DeployerConfiguration";
 import { Connector } from "./Connector";
 import {
-    Augur,
+    VeilAugur,
     ContractFactory,
     Controller,
     Controlled,
@@ -79,7 +79,7 @@ Deploying to: ${networkConfiguration.networkName}
         const blockNumber = await this.getBlockNumber();
 
         this.controller = await this.uploadController();
-        await this.uploadAugur();
+        await this.uploadVeilAugur();
         await this.uploadAllContracts();
 
         await this.initializeAllContracts();
@@ -183,9 +183,9 @@ Deploying to: ${networkConfiguration.networkName}
         return controller;
     }
 
-    private async uploadAugur(): Promise<void> {
-        // We have to upload and initialize Augur first so it can log the registration and whitelisting of other contracts
-        const contract = await this.contracts.get("Augur");
+    private async uploadVeilAugur(): Promise<void> {
+        // We have to upload and initialize VeilAugur first so it can log the registration and whitelisting of other contracts
+        const contract = await this.contracts.get("VeilAugur");
         const address = await this.construct(
             contract,
             [],
@@ -195,7 +195,7 @@ Deploying to: ${networkConfiguration.networkName}
         const bytecodeHash = await ContractDeployer.getBytecodeSha(
             contract.bytecode
         );
-        const augur = new Augur(
+        const veilAugur = new VeilAugur(
             this.connector,
             this.accountManager,
             address,
@@ -203,12 +203,14 @@ Deploying to: ${networkConfiguration.networkName}
         );
         contract.address = address;
 
-        console.log(`Augur address: ${address}`);
+        console.log(`VeilAugur address: ${address}`);
         console.log(`Setting controller...`);
-        await augur.setController(this.controller.address);
-        console.log(`Registering the Augur contract with the controller...`);
+        await veilAugur.setController(this.controller.address);
+        console.log(
+            `Registering the VeilAugur contract with the controller...`
+        );
         await this.controller.registerContract(
-            stringTo32ByteHex("Augur"),
+            stringTo32ByteHex("VeilAugur"),
             address,
             commitHash,
             bytecodeHash
@@ -229,7 +231,7 @@ Deploying to: ${networkConfiguration.networkName}
         if (contractName === "Controller") return;
         if (contractName === "Delegator") return;
         if (contractName === "TimeControlled") return;
-        if (contractName === "Augur") return;
+        if (contractName === "VeilAugur") return;
         if (contractName === "Time")
             contract = this.configuration.useNormalTime
                 ? contract
@@ -428,19 +430,19 @@ Deploying to: ${networkConfiguration.networkName}
 
     private async createGenesisUniverse(): Promise<Universe> {
         console.log("Creating genesis universe...");
-        const augur = new Augur(
+        const veilAugur = new VeilAugur(
             this.connector,
             this.accountManager,
-            this.getContract("Augur").address,
+            this.getContract("VeilAugur").address,
             this.connector.gasPrice
         );
-        const universeAddress = await augur.createGenesisUniverse_();
+        const universeAddress = await veilAugur.createGenesisUniverse_();
         if (!universeAddress || universeAddress == "0x") {
             throw new Error(
                 "Unable to create genesis universe. eth_call failed"
             );
         }
-        await augur.createGenesisUniverse();
+        await veilAugur.createGenesisUniverse();
         const universe = new Universe(
             this.connector,
             this.accountManager,
@@ -466,9 +468,9 @@ Deploying to: ${networkConfiguration.networkName}
         const mapping: ContractAddressMapping = {};
         mapping["Controller"] = this.controller.address;
         if (this.universe) mapping["Universe"] = this.universe.address;
-        if (this.contracts.get("Augur").address === undefined)
-            throw new Error(`Augur not uploaded.`);
-        mapping["Augur"] = this.contracts.get("Augur").address!;
+        if (this.contracts.get("VeilAugur").address === undefined)
+            throw new Error(`VeilAugur not uploaded.`);
+        mapping["VeilAugur"] = this.contracts.get("VeilAugur").address!;
         for (let contract of this.contracts) {
             if (!contract.relativeFilePath.startsWith("trading/")) continue;
             if (/^I[A-Z].*/.test(contract.contractName)) continue;

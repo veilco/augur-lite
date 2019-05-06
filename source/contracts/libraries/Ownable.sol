@@ -44,6 +44,6 @@ contract Ownable is IOwnable {
         return true;
     }
 
-    // Subclasses of this token may want to send additional logs through the centralized Augur log emitter contract
+    // Subclasses of this token may want to send additional logs through the centralized VeilAugur log emitter contract
     function onTransferOwnership(address, address) internal returns (bool);
 }

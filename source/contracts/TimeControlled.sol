@@ -19,13 +19,13 @@ contract TimeControlled is ITime, Ownable {
 
     function incrementTimestamp(uint256 _amount) external onlyOwner returns (bool) {
         timestamp += _amount;
-        controller.getAugur().logTimestampSet(timestamp);
+        controller.getVeilAugur().logTimestampSet(timestamp);
         return true;
     }
 
     function setTimestamp(uint256 _timestamp) external onlyOwner returns (bool) {
         timestamp = _timestamp;
-        controller.getAugur().logTimestampSet(timestamp);
+        controller.getVeilAugur().logTimestampSet(timestamp);
         return true;
     }
 

@@ -1,24 +1,24 @@
 pragma solidity 0.4.25;
 
 import 'Controlled.sol';
-import 'IAugur.sol';
+import 'IVeilAugur.sol';
 import 'libraries/token/ERC20.sol';
 import 'factories/UniverseFactory.sol';
 import 'reporting/IUniverse.sol';
 import 'reporting/IMarket.sol';
+import 'reporting/IMailbox.sol';
 import 'trading/IShareToken.sol';
 
 
 // Centralized approval authority and event emissions
-contract Augur is Controlled, IAugur {
+contract VeilAugur is Controlled, IVeilAugur {
 
     enum TokenType {
         ShareToken
     }
 
     event MarketCreated(bytes32 indexed topic, string description, string extraInfo, address indexed universe, address market, address indexed marketCreator, bytes32[] outcomes, uint256 marketCreationFee, int256 minPrice, int256 maxPrice, IMarket.MarketType marketType);
-    event InitialReportSubmitted(address indexed universe, address indexed reporter, address indexed market, bool isDesignatedReporter, uint256[] payoutNumerators, bool invalid);
-    event MarketFinalized(address indexed universe, address indexed market);
+    event MarketResolved(address indexed universe, address indexed market);
     event UniverseCreated(address indexed universe, bool invalid);
     event CompleteSetsPurchased(address indexed universe, address indexed market, address indexed account, uint256 numCompleteSets);
     event CompleteSetsSold(address indexed universe, address indexed market, address indexed account, uint256 numCompleteSets);
@@ -26,8 +26,8 @@ contract Augur is Controlled, IAugur {
     event TokensTransferred(address indexed universe, address indexed token, address indexed from, address to, uint256 value, TokenType tokenType, address market);
     event TokensMinted(address indexed universe, address indexed token, address indexed target, uint256 amount, TokenType tokenType, address market);
     event TokensBurned(address indexed universe, address indexed token, address indexed target, uint256 amount, TokenType tokenType, address market);
-    event InitialReporterTransferred(address indexed universe, address indexed market, address from, address to);
     event MarketTransferred(address indexed universe, address indexed market, address from, address to);
+    event MarketMailboxTransferred(address indexed universe, address indexed market, address indexed mailbox, address from, address to);
     event EscapeHatchChanged(bool isOn);
     event TimestampSet(uint256 newTimestamp);
 
@@ -79,18 +79,11 @@ contract Augur is Controlled, IAugur {
         return true;
     }
 
-    function logInitialReportSubmitted(IUniverse _universe, address _reporter, address _market, bool _isDesignatedReporter, uint256[] _payoutNumerators, bool _invalid) public returns (bool) {
-        require(isKnownUniverse(_universe));
-        require(_universe.isContainerForMarket(IMarket(msg.sender)));
-        emit InitialReportSubmitted(_universe, _reporter, _market, _isDesignatedReporter, _payoutNumerators, _invalid);
-        return true;
-    }
-
-    function logMarketFinalized(IUniverse _universe) public returns (bool) {
+    function logMarketResolved(IUniverse _universe) public returns (bool) {
         require(isKnownUniverse(_universe));
         IMarket _market = IMarket(msg.sender);
         require(_universe.isContainerForMarket(_market));
-        emit MarketFinalized(_universe, _market);
+        emit MarketResolved(_universe, _market);
         return true;
     }
 
@@ -139,19 +132,19 @@ contract Augur is Controlled, IAugur {
         return true;
     }
 
-    function logInitialReporterTransferred(IUniverse _universe, IMarket _market, address _from, address _to) public returns (bool) {
-        require(isKnownUniverse(_universe));
-        require(_universe.isContainerForMarket(_market));
-        require(msg.sender == _market.getInitialReporterAddress());
-        emit InitialReporterTransferred(_universe, _market, _from, _to);
-        return true;
-    }
-
     function logMarketTransferred(IUniverse _universe, address _from, address _to) public returns (bool) {
         require(isKnownUniverse(_universe));
         IMarket _market = IMarket(msg.sender);
         require(_universe.isContainerForMarket(_market));
         emit MarketTransferred(_universe, _market, _from, _to);
+        return true;
+    }
+
+    function logMarketMailboxTransferred(IUniverse _universe, IMarket _market, address _from, address _to) public returns (bool) {
+        require(isKnownUniverse(_universe));
+        require(_universe.isContainerForMarket(_market));
+        require(IMailbox(msg.sender) == _market.getMarketCreatorMailbox());
+        emit MarketMailboxTransferred(_universe, _market, msg.sender, _from, _to);
         return true;
     }
 

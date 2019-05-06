@@ -18,7 +18,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
 
     function claimTradingProceeds(IMarket _market, address _shareHolder) marketIsLegit(_market) onlyInGoodTimes nonReentrant external returns(bool) {
         // NOTE: this requirement does _not_ enforce market finalization. That requirement occurs later on in this function when calling getWinningPayoutNumerator. When this requirement is removed we may want to consider explicitly requiring it here (or modifying this comment and keeping the gas savings)
-        require(controller.getTimestamp() > _market.getFinalizationTime());
+        require(controller.getTimestamp() > _market.getResolutionTime());
 
         ERC20 _denominationToken = _market.getDenominationToken();
 
@@ -49,7 +49,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
     }
 
     function logTradingProceedsClaimed(IMarket _market, address _shareToken, address _sender, uint256 _numShares, uint256 _numPayoutTokens) private returns (bool) {
-        controller.getAugur().logTradingProceedsClaimed(_market.getUniverse(), _shareToken, _sender, _market, _numShares, _numPayoutTokens, _sender.balance.add(_numPayoutTokens));
+        controller.getVeilAugur().logTradingProceedsClaimed(_market.getUniverse(), _shareToken, _sender, _market, _numShares, _numPayoutTokens, _sender.balance.add(_numPayoutTokens));
         return true;
     }
 

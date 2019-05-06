@@ -50,6 +50,6 @@ contract BasicToken is ERC20Basic {
         return supply;
     }
 
-    // Subclasses of this token generally want to send additional logs through the centralized Augur log emitter contract
+    // Subclasses of this token generally want to send additional logs through the centralized VeilAugur log emitter contract
     function onTokenTransfer(address _from, address _to, uint256 _value) internal returns (bool);
 }

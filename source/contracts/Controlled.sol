@@ -9,6 +9,10 @@ import 'libraries/token/ERC20Basic.sol';
 contract Controlled is IControlled {
     IController internal controller;
 
+    constructor() public {
+        controller = IController(msg.sender);
+    }
+
     modifier onlyWhitelistedCallers {
         require(controller.assertIsWhitelisted(msg.sender));
         _;
@@ -32,10 +36,6 @@ contract Controlled is IControlled {
     modifier onlyInBadTimes {
         require(controller.onlyInEmergency());
         _;
-    }
-
-    constructor() public {
-        controller = IController(msg.sender);
     }
 
     function getController() public view returns(IController) {
