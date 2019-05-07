@@ -1,6 +1,6 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
-import 'IVeilAugur.sol';
+import 'IAugurLite.sol';
 
 
 contract IController {
@@ -8,7 +8,7 @@ contract IController {
   function lookup(bytes32 _key) public view returns(address);
   function stopInEmergency() public view returns(bool);
   function onlyInEmergency() public view returns(bool);
-  function getVeilAugur() public view returns (IVeilAugur);
+  function getAugurLite() public view returns (IAugurLite);
   function getTimestamp() public view returns (uint256);
   function emergencyStop() public returns (bool);
 }

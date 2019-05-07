@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'trading/IShareToken.sol';
 import 'libraries/DelegationTarget.sol';
@@ -47,17 +47,17 @@ contract ShareToken is DelegationTarget, ITyped, Initializable, VariableSupplyTo
   }
 
   function onTokenTransfer(address _from, address _to, uint256 _value) internal returns (bool) {
-    controller.getVeilAugur().logShareTokensTransferred(market.getUniverse(), _from, _to, _value);
+    controller.getAugurLite().logShareTokensTransferred(market.getUniverse(), _from, _to, _value);
     return true;
   }
 
   function onMint(address _target, uint256 _amount) internal returns (bool) {
-    controller.getVeilAugur().logShareTokenMinted(market.getUniverse(), _target, _amount);
+    controller.getAugurLite().logShareTokenMinted(market.getUniverse(), _target, _amount);
     return true;
   }
 
   function onBurn(address _target, uint256 _amount) internal returns (bool) {
-    controller.getVeilAugur().logShareTokenBurned(market.getUniverse(), _target, _amount);
+    controller.getAugurLite().logShareTokenBurned(market.getUniverse(), _target, _amount);
     return true;
   }
 }

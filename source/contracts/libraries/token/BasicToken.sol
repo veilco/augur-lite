@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'libraries/token/ERC20Basic.sol';
 import 'libraries/math/SafeMathUint256.sol';
@@ -49,6 +49,6 @@ contract BasicToken is ERC20Basic {
     return supply;
   }
 
-  // Subclasses of this token generally want to send additional logs through the centralized VeilAugur log emitter contract
+  // Subclasses of this token generally want to send additional logs through the centralized AugurLite log emitter contract
   function onTokenTransfer(address _from, address _to, uint256 _value) internal returns (bool);
 }

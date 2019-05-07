@@ -1,7 +1,7 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'trading/ICompleteSets.sol';
-import 'IVeilAugur.sol';
+import 'IAugurLite.sol';
 import 'Controlled.sol';
 import 'libraries/ReentrancyGuard.sol';
 import 'libraries/math/SafeMathUint256.sol';
@@ -19,7 +19,7 @@ contract CompleteSets is Controlled, ReentrancyGuard, MarketValidator, IComplete
 
   function publicBuyCompleteSets(IMarket _market, uint256 _amount) external marketIsLegit(_market) onlyInGoodTimes returns (bool) {
     this.buyCompleteSets(msg.sender, _market, _amount);
-    controller.getVeilAugur().logCompleteSetsPurchased(_market.getUniverse(), _market, msg.sender, _amount);
+    controller.getAugurLite().logCompleteSetsPurchased(_market.getUniverse(), _market, msg.sender, _amount);
     _market.assertBalances();
     return true;
   }
@@ -29,10 +29,10 @@ contract CompleteSets is Controlled, ReentrancyGuard, MarketValidator, IComplete
 
     uint256 _numOutcomes = _market.getNumberOfOutcomes();
     ERC20 _denominationToken = _market.getDenominationToken();
-    IVeilAugur _veilAugur = controller.getVeilAugur();
+    IAugurLite _augurLite = controller.getAugurLite();
 
     uint256 _cost = _amount.mul(_market.getNumTicks());
-    require(_veilAugur.trustedTransfer(_denominationToken, _sender, _market, _cost));
+    require(_augurLite.trustedTransfer(_denominationToken, _sender, _market, _cost));
     for (uint256 _outcome = 0; _outcome < _numOutcomes; ++_outcome) {
       _market.getShareToken(_outcome).createShares(_sender, _amount);
     }
@@ -46,7 +46,7 @@ contract CompleteSets is Controlled, ReentrancyGuard, MarketValidator, IComplete
 
   function publicSellCompleteSets(IMarket _market, uint256 _amount) external marketIsLegit(_market) onlyInGoodTimes returns (bool) {
     this.sellCompleteSets(msg.sender, _market, _amount);
-    controller.getVeilAugur().logCompleteSetsSold(_market.getUniverse(), _market, msg.sender, _amount);
+    controller.getAugurLite().logCompleteSetsSold(_market.getUniverse(), _market, msg.sender, _amount);
     _market.assertBalances();
     return true;
   }

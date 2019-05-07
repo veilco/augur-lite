@@ -39,6 +39,12 @@ const networks: Networks = {
       ? new BN(20)
       : new BN(process.env.ETHEREUM_GAS_PRICE_IN_NANOETH!)
     ).mul(new BN(1000000000))
+  },
+  testrpc: {
+    isProduction: false,
+    http: "http://localhost:8545",
+    gasPrice: new BN(1),
+    privateKey: process.env.TESTRPC_PRIVATE_KEY!
   }
 };
 

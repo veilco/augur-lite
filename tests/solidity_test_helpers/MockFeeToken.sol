@@ -1,4 +1,4 @@
-pragma solidity 0.4.20;
+pragma solidity 0.4.26;
 
 import 'reporting/IFeeToken.sol';
 import 'reporting/IFeeWindow.sol';

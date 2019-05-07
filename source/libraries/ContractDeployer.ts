@@ -9,7 +9,7 @@ import { Abi, AbiFunction } from "ethereum";
 import { DeployerConfiguration } from "./DeployerConfiguration";
 import { Connector } from "./Connector";
 import {
-  VeilAugur,
+  AugurLite,
   ContractFactory,
   Controller,
   Controlled,
@@ -79,7 +79,7 @@ Deploying to: ${networkConfiguration.networkName}
     const blockNumber = await this.getBlockNumber();
 
     this.controller = await this.uploadController();
-    await this.uploadVeilAugur();
+    await this.uploadAugurLite();
     await this.uploadAllContracts();
 
     await this.initializeAllContracts();
@@ -180,9 +180,9 @@ Deploying to: ${networkConfiguration.networkName}
     return controller;
   }
 
-  private async uploadVeilAugur(): Promise<void> {
-    // We have to upload and initialize VeilAugur first so it can log the registration and whitelisting of other contracts
-    const contract = await this.contracts.get("VeilAugur");
+  private async uploadAugurLite(): Promise<void> {
+    // We have to upload and initialize AugurLite first so it can log the registration and whitelisting of other contracts
+    const contract = await this.contracts.get("AugurLite");
     const address = await this.construct(
       contract,
       [],
@@ -192,7 +192,7 @@ Deploying to: ${networkConfiguration.networkName}
     const bytecodeHash = await ContractDeployer.getBytecodeSha(
       contract.bytecode
     );
-    const veilAugur = new VeilAugur(
+    const augurLite = new AugurLite(
       this.connector,
       this.accountManager,
       address,
@@ -200,12 +200,12 @@ Deploying to: ${networkConfiguration.networkName}
     );
     contract.address = address;
 
-    console.log(`VeilAugur address: ${address}`);
+    console.log(`AugurLite address: ${address}`);
     console.log(`Setting controller...`);
-    await veilAugur.setController(this.controller.address);
-    console.log(`Registering the VeilAugur contract with the controller...`);
+    await augurLite.setController(this.controller.address);
+    console.log(`Registering the AugurLite contract with the controller...`);
     await this.controller.registerContract(
-      stringTo32ByteHex("VeilAugur"),
+      stringTo32ByteHex("AugurLite"),
       address,
       commitHash,
       bytecodeHash
@@ -222,11 +222,20 @@ Deploying to: ${networkConfiguration.networkName}
   }
 
   private async upload(contract: Contract): Promise<void> {
+    const contractsToDelegate: { [key: string]: boolean } = {
+      TestNetDenominationToken: true
+    };
+
     const contractName = contract.contractName;
     if (contractName === "Controller") return;
     if (contractName === "Delegator") return;
     if (contractName === "TimeControlled") return;
-    if (contractName === "VeilAugur") return;
+    if (
+      contractName === "TestNetDenominationToken" &&
+      this.configuration.isProduction
+    )
+      return;
+    if (contractName === "AugurLite") return;
     if (contractName === "Time")
       contract = this.configuration.useNormalTime
         ? contract
@@ -239,16 +248,18 @@ Deploying to: ${networkConfiguration.networkName}
     // Check to see if we have already uploded this version of the contract
     if (
       typeof this.configuration.controllerAddress !== "undefined" &&
-      (await this.shouldSkipUploadingContract(contract, false))
+      (await this.shouldSkipUploadingContract(
+        contract,
+        contractsToDelegate[contractName]
+      ))
     ) {
       console.log(`Using existing contract for ${contractName}`);
       contract.address = await this.getExistingContractAddress(contractName);
     } else {
       console.log(`Uploading new version of contract for ${contractName}`);
-      contract.address = await this.uploadAndAddToController(
-        contract,
-        contractName
-      );
+      contract.address = contractsToDelegate[contractName]
+        ? await this.uploadAndAddDelegatedToController(contract)
+        : await this.uploadAndAddToController(contract, contractName);
     }
   }
 
@@ -273,6 +284,22 @@ Deploying to: ${networkConfiguration.networkName}
     const key = stringTo32ByteHex(contractName);
     const contractDetails = await this.controller.getContractDetails_(key);
     return contractDetails[0];
+  }
+
+  private async uploadAndAddDelegatedToController(
+    contract: Contract
+  ): Promise<string> {
+    const delegationTargetName = `${contract.contractName}Target`;
+    const delegatorConstructorArgs = [
+      this.controller.address,
+      stringTo32ByteHex(delegationTargetName)
+    ];
+    await this.uploadAndAddToController(contract, delegationTargetName);
+    return await this.uploadAndAddToController(
+      this.contracts.get("Delegator"),
+      contract.contractName,
+      delegatorConstructorArgs
+    );
   }
 
   private async uploadAndAddToController(
@@ -415,17 +442,17 @@ Deploying to: ${networkConfiguration.networkName}
 
   private async createGenesisUniverse(): Promise<Universe> {
     console.log("Creating genesis universe...");
-    const veilAugur = new VeilAugur(
+    const augurLite = new AugurLite(
       this.connector,
       this.accountManager,
-      this.getContract("VeilAugur").address,
+      this.getContract("AugurLite").address,
       this.connector.gasPrice
     );
-    const universeAddress = await veilAugur.createGenesisUniverse_();
+    const universeAddress = await augurLite.createGenesisUniverse_();
     if (!universeAddress || universeAddress == "0x") {
       throw new Error("Unable to create genesis universe. eth_call failed");
     }
-    await veilAugur.createGenesisUniverse();
+    await augurLite.createGenesisUniverse();
     const universe = new Universe(
       this.connector,
       this.accountManager,
@@ -451,9 +478,9 @@ Deploying to: ${networkConfiguration.networkName}
     const mapping: ContractAddressMapping = {};
     mapping["Controller"] = this.controller.address;
     if (this.universe) mapping["Universe"] = this.universe.address;
-    if (this.contracts.get("VeilAugur").address === undefined)
-      throw new Error(`VeilAugur not uploaded.`);
-    mapping["VeilAugur"] = this.contracts.get("VeilAugur").address!;
+    if (this.contracts.get("AugurLite").address === undefined)
+      throw new Error(`AugurLite not uploaded.`);
+    mapping["AugurLite"] = this.contracts.get("AugurLite").address!;
     for (let contract of this.contracts) {
       if (!contract.relativeFilePath.startsWith("trading/")) continue;
       if (/^I[A-Z].*/.test(contract.contractName)) continue;

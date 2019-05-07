@@ -1,11 +1,11 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'reporting/IUniverse.sol';
 import 'libraries/token/ERC20.sol';
 import 'reporting/IMarket.sol';
 
 
-contract IVeilAugur {
+contract IAugurLite {
   function isKnownUniverse(IUniverse _universe) public view returns (bool);
   function trustedTransfer(ERC20 _token, address _from, address _to, uint256 _amount) public returns (bool);
   function logMarketCreated(bytes32 _topic, string _description, string _extraInfo, IUniverse _universe, address _market, address _marketCreator, bytes32[] _outcomes, int256 _minPrice, int256 _maxPrice, IMarket.MarketType _marketType) public returns (bool);

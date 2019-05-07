@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'ITime.sol';
 import 'libraries/Ownable.sol';
@@ -19,13 +19,13 @@ contract TimeControlled is ITime, Ownable {
 
   function incrementTimestamp(uint256 _amount) external onlyOwner returns (bool) {
     timestamp += _amount;
-    controller.getVeilAugur().logTimestampSet(timestamp);
+    controller.getAugurLite().logTimestampSet(timestamp);
     return true;
   }
 
   function setTimestamp(uint256 _timestamp) external onlyOwner returns (bool) {
     timestamp = _timestamp;
-    controller.getVeilAugur().logTimestampSet(timestamp);
+    controller.getAugurLite().logTimestampSet(timestamp);
     return true;
   }
 

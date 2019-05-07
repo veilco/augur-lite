@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'reporting/IMarket.sol';
 import 'libraries/DelegationTarget.sol';
@@ -84,7 +84,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     payoutNumerators = _payoutNumerators;
     invalid = _invalid;
     universe.decrementOpenInterestFromMarket(shareTokens[0].totalSupply().mul(numTicks));
-    controller.getVeilAugur().logMarketResolved(universe);
+    controller.getAugurLite().logMarketResolved(universe);
     return true;
   }
 
@@ -187,7 +187,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   }
 
   function onTransferOwnership(address _owner, address _newOwner) internal returns (bool) {
-    controller.getVeilAugur().logMarketTransferred(getUniverse(), _owner, _newOwner);
+    controller.getAugurLite().logMarketTransferred(getUniverse(), _owner, _newOwner);
     return true;
   }
 

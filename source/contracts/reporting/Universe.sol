@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'reporting/IUniverse.sol';
 import 'libraries/DelegationTarget.sol';
@@ -64,14 +64,14 @@ contract Universe is DelegationTarget, ITyped, IUniverse {
   function createYesNoMarket(uint256 _endTime, uint256 _feePerEthInWei, ERC20 _denominationToken, address _oracle, bytes32 _topic, string _description, string _extraInfo) public onlyInGoodTimes payable returns (IMarket _newMarket) {
     require(bytes(_description).length > 0);
     _newMarket = createMarketInternal(_endTime, _feePerEthInWei, _denominationToken, _oracle, msg.sender, 2, 10000);
-    controller.getVeilAugur().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, 0, 1 ether, IMarket.MarketType.YES_NO);
+    controller.getAugurLite().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, 0, 1 ether, IMarket.MarketType.YES_NO);
     return _newMarket;
   }
 
   function createCategoricalMarket(uint256 _endTime, uint256 _feePerEthInWei, ERC20 _denominationToken, address _oracle, bytes32[] _outcomes, bytes32 _topic, string _description, string _extraInfo) public onlyInGoodTimes payable returns (IMarket _newMarket) {
     require(bytes(_description).length > 0);
     _newMarket = createMarketInternal(_endTime, _feePerEthInWei, _denominationToken, _oracle, msg.sender, uint256(_outcomes.length), 10000);
-    controller.getVeilAugur().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, _outcomes, 0, 1 ether, IMarket.MarketType.CATEGORICAL);
+    controller.getAugurLite().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, _outcomes, 0, 1 ether, IMarket.MarketType.CATEGORICAL);
     return _newMarket;
   }
 
@@ -80,7 +80,7 @@ contract Universe is DelegationTarget, ITyped, IUniverse {
     require(_minPrice < _maxPrice);
     require(_numTicks.isMultipleOf(2));
     _newMarket = createMarketInternal(_endTime, _feePerEthInWei, _denominationToken, _oracle, msg.sender, 2, _numTicks);
-    controller.getVeilAugur().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, _minPrice, _maxPrice, IMarket.MarketType.SCALAR);
+    controller.getAugurLite().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, _minPrice, _maxPrice, IMarket.MarketType.SCALAR);
     return _newMarket;
   }
 

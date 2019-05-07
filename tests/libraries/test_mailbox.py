@@ -64,7 +64,7 @@ def test_mailbox_cash_happy_path(localFixture, mailbox, cash):
 def localSnapshot(fixture, controllerSnapshot):
     fixture.resetToSnapshot(controllerSnapshot)
 
-    fixture.uploadAugur()
+    fixture.uploadVeilAugur()
 
     # Upload a token
     fixture.uploadAndAddToController("solidity_test_helpers/StandardTokenHelper.sol")

@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'reporting/IMarket.sol';
 import 'Controlled.sol';
@@ -7,7 +7,7 @@ import 'Controlled.sol';
 contract MarketValidator is Controlled {
   modifier marketIsLegit(IMarket _market) {
     IUniverse _universe = _market.getUniverse();
-    require(controller.getVeilAugur().isKnownUniverse(_universe));
+    require(controller.getAugurLite().isKnownUniverse(_universe));
     require(_universe.isContainerForMarket(_market));
     _;
   }

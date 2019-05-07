@@ -1,7 +1,7 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'Controlled.sol';
-import 'IVeilAugur.sol';
+import 'IAugurLite.sol';
 import 'libraries/token/ERC20.sol';
 import 'factories/UniverseFactory.sol';
 import 'reporting/IUniverse.sol';
@@ -11,7 +11,7 @@ import 'trading/IShareToken.sol';
 
 
 // Centralized approval authority and event emissions
-contract VeilAugur is Controlled, IVeilAugur {
+contract AugurLite is Controlled, IAugurLite {
 
   enum TokenType {
     ShareToken

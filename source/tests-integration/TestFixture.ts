@@ -12,6 +12,7 @@ import {
   ClaimTradingProceeds,
   CompleteSets,
   TimeControlled,
+  TestNetDenominationToken,
   Universe,
   Market
 } from "../libraries/ContractInterfaces";
@@ -27,6 +28,11 @@ export class TestFixture {
   public get universe() {
     return this.contractDeployer.universe;
   }
+  public get testNetDenominationToken() {
+    return <TestNetDenominationToken>(
+      this.contractDeployer.getContract("TestNetDenominationToken")
+    );
+  }
 
   public constructor(
     connector: Connector,
@@ -39,7 +45,7 @@ export class TestFixture {
   }
 
   public static create = async (): Promise<TestFixture> => {
-    const networkConfiguration = NetworkConfiguration.create();
+    const networkConfiguration = NetworkConfiguration.create("testrpc");
     await TestRpc.startTestRpcIfNecessary(networkConfiguration);
 
     const compilerConfiguration = CompilerConfiguration.create();
@@ -72,14 +78,14 @@ export class TestFixture {
   };
 
   public async approveCentralAuthority(): Promise<void> {
-    const authority = this.contractDeployer.getContract("Augur");
-    const cash = new Cash(
+    const authority = this.contractDeployer.getContract("AugurLite");
+    const testNetDenominationToken = new TestNetDenominationToken(
       this.connector,
       this.accountManager,
-      this.contractDeployer.getContract("Cash").address,
+      this.contractDeployer.getContract("TestNetDenominationToken").address,
       TestFixture.GAS_PRICE
     );
-    await cash.approve(
+    await testNetDenominationToken.approve(
       authority.address,
       new BN(2).pow(new BN(256)).sub(new BN(1))
     );
@@ -169,6 +175,17 @@ export class TestFixture {
     return;
   }
 
+  public async depositEther(amount: BN): Promise<void> {
+    const testNetDenominationToken = new TestNetDenominationToken(
+      this.connector,
+      this.accountManager,
+      this.contractDeployer.getContract("TestNetDenominationToken").address,
+      TestFixture.GAS_PRICE
+    );
+    await testNetDenominationToken.depositEther({ attachedEth: amount });
+    return;
+  }
+
   public async buyCompleteSets(market: Market, amount: BN): Promise<void> {
     const completeSetsContract = await this.contractDeployer.getContract(
       "CompleteSets"
@@ -179,8 +196,6 @@ export class TestFixture {
       completeSetsContract.address,
       TestFixture.GAS_PRICE
     );
-
-    const numTicks = await market.getNumTicks_();
 
     await completeSets.publicBuyCompleteSets(market.address, amount, {});
     return;
@@ -260,6 +275,7 @@ export class TestFixture {
     return;
   }
 
+  // TODO: Determine why ETH balance doesn't change when buying complete sets or redeeming reporting participants
   public async getEthBalance(): Promise<BN> {
     return await this.connector.ethjsQuery.getBalance(
       this.accountManager.defaultAddress

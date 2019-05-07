@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'Controlled.sol';
 import 'libraries/ReentrancyGuard.sol';
@@ -48,7 +48,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
   }
 
   function logTradingProceedsClaimed(IMarket _market, address _shareToken, address _sender, uint256 _numShares, uint256 _numPayoutTokens) private returns (bool) {
-    controller.getVeilAugur().logTradingProceedsClaimed(_market.getUniverse(), _shareToken, _sender, _market, _numShares, _numPayoutTokens, _sender.balance.add(_numPayoutTokens));
+    controller.getAugurLite().logTradingProceedsClaimed(_market.getUniverse(), _shareToken, _sender, _market, _numShares, _numPayoutTokens, _sender.balance.add(_numPayoutTokens));
     return true;
   }
 

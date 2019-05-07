@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'libraries/DelegationTarget.sol';
 import 'libraries/Ownable.sol';
@@ -25,7 +25,7 @@ contract Mailbox is DelegationTarget, Ownable, Initializable, IMailbox {
   }
 
   function onTransferOwnership(address _owner, address _newOwner) internal returns (bool) {
-    controller.getVeilAugur().logMarketMailboxTransferred(market.getUniverse(), market, _owner, _newOwner);
+    controller.getAugurLite().logMarketMailboxTransferred(market.getUniverse(), market, _owner, _newOwner);
     return true;
   }
 }

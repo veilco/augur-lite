@@ -13,7 +13,7 @@ export class TestRpc {
     const accounts = [
       {
         balance: `0x${this.DEFAULT_TEST_ACCOUNT_BALANCE.toString(16)}`,
-        secretKey: networkConfiguration.privateKey
+        secretKey: `0x${networkConfiguration.privateKey}`
       }
     ];
     const options = {
@@ -31,7 +31,7 @@ export class TestRpc {
   public static startTestRpcIfNecessary = async (
     networkConfiguration: NetworkConfiguration
   ): Promise<void> => {
-    if (networkConfiguration.networkName === "testrpc") {
+    if (networkConfiguration.networkName === "testrpc2") {
       const testRpc = new TestRpc(networkConfiguration);
       testRpc.listen();
     }

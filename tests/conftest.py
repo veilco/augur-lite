@@ -314,22 +314,10 @@ class ContractsFixture:
                 extension = path.splitext(filename)[1]
                 if extension != '.sol': continue
                 if name == 'controller': continue
-                if name == 'Augur': continue
+                if name == 'VeilAugur': continue
                 if name == 'Time': continue # In testing and development we swap the Time library for a ControlledTime version which lets us manage block timestamp
-                contractsToDelegate = ['Orders', 'TradingEscapeHatch', 'Cash']
-                if name in contractsToDelegate:
-                    delegationTargetName = "".join([name, "Target"])
-                    self.uploadAndAddToController(path.join(directory, filename), delegationTargetName, name)
-                    self.uploadAndAddToController("../source/contracts/libraries/Delegator.sol", name, "delegator", constructorArgs=[self.contracts['Controller'].address, delegationTargetName.ljust(32, '\x00')])
-                    self.contracts[name] = self.applySignature(name, self.contracts[name].address)
-                elif name == "TimeControlled":
+                if name == "TimeControlled":
                     self.uploadAndAddToController(path.join(directory, filename), lookupKey = "Time", signatureKey = "TimeControlled")
-                elif name == "Trade":
-                    self.uploadAndAddToController("solidity_test_helpers/TestTrade.sol", lookupKey = "Trade", signatureKey = "Trade")
-                elif legacyRepForRedeployTest and name == "LegacyReputationToken":
-                    self.contracts['Controller'].registerContract("LegacyReputationToken".ljust(32, '\x00'), legacyRepForRedeployTest, garbageBytes20, garbageBytes32)
-                elif legacyRepForRedeployTest and name == "ReputationToken":
-                    self.uploadAndAddToController("solidity_test_helpers/Redeploy/NewReputationToken.sol", lookupKey = "ReputationToken", signatureKey = "NewReputationToken")
                 else:
                     self.uploadAndAddToController(path.join(directory, filename))
 
@@ -365,7 +353,7 @@ class ContractsFixture:
             self.contracts['Controller'].addToWhitelist(self.contracts[name].address)
 
     def initializeAllContracts(self):
-        contractsToInitialize = ['CompleteSets','CreateOrder','FillOrder','CancelOrder','Trade','ClaimTradingProceeds','OrdersFetcher', 'Time']
+        contractsToInitialize = ['CompleteSets', 'ClaimTradingProceeds', 'Time']
         for contractName in contractsToInitialize:
             if getattr(self.contracts[contractName], "setController", None):
                 self.contracts[contractName].setController(self.contracts['Controller'].address)
@@ -384,19 +372,20 @@ class ContractsFixture:
         return cash
 
     def approveCentralAuthority(self):
-        authority = self.contracts['Augur']
+        return True
+        authority = self.contracts['VeilAugur']
         contractsToApprove = ['Cash']
         testersGivingApproval = [getattr(tester, 'k%i' % x) for x in range(0,10)]
         for testerKey in testersGivingApproval:
             for contractName in contractsToApprove:
                 self.contracts[contractName].approve(authority.address, 2**254, sender=testerKey)
 
-    def uploadAugur(self):
+    def uploadVeilAugur(self):
         # We have to upload Augur first so it can log when contracts are added to the registry
-        augur = self.upload("../source/contracts/Augur.sol")
-        self.contracts["Augur"].setController(self.contracts['Controller'].address)
-        self.contracts['Controller'].registerContract("Augur".ljust(32, '\x00'), augur.address, garbageBytes20, garbageBytes32)
-        return augur
+        veilAugur = self.upload("../source/contracts/VeilAugur.sol")
+        self.contracts["VeilAugur"].setController(self.contracts['Controller'].address)
+        self.contracts['Controller'].registerContract("VeilAugur".ljust(32, '\x00'), veilAugur.address, garbageBytes20, garbageBytes32)
+        return veilAugur
 
     def uploadShareToken(self, controllerAddress = None):
         controllerAddress = controllerAddress if controllerAddress else self.contracts['Controller'].address
@@ -406,7 +395,7 @@ class ContractsFixture:
         return self.applySignature('shareToken', shareToken)
 
     def createUniverse(self):
-        universeAddress = self.contracts['Augur'].createGenesisUniverse()
+        universeAddress = self.contracts['VeilAugur'].createGenesisUniverse()
         universe = self.applySignature('Universe', universeAddress)
         assert universe.getTypeName() == stringToBytes('Universe')
         return universe
@@ -498,7 +487,7 @@ def controllerSnapshot(fixture, baseSnapshot):
 @pytest.fixture(scope="session")
 def augurInitializedSnapshot(fixture, controllerSnapshot):
     fixture.resetToSnapshot(controllerSnapshot)
-    fixture.uploadAugur()
+    fixture.uploadVeilAugur()
     fixture.uploadAllContracts()
     fixture.initializeAllContracts()
     fixture.whitelistTradingContracts()
@@ -512,29 +501,15 @@ def augurInitializedWithMocksSnapshot(fixture, augurInitializedSnapshot):
     fixture.uploadAllMockContracts()
     controller = fixture.contracts['Controller']
     mockAugur = fixture.contracts['MockAugur']
-    controller.registerContract(stringToBytes('Augur'), mockAugur.address, twentyZeros, thirtyTwoZeros)
+    controller.registerContract(stringToBytes('VeilAugur'), mockAugur.address, twentyZeros, thirtyTwoZeros)
     return fixture.createSnapshot()
 
 @pytest.fixture(scope="session")
 def kitchenSinkSnapshot(fixture, augurInitializedSnapshot):
     fixture.resetToSnapshot(augurInitializedSnapshot)
-    # TODO: remove assignments to the fixture as they don't get rolled back, so can bleed across tests.  We should be accessing things via `fixture.contracts[...]`
-    legacyReputationToken = fixture.contracts['LegacyReputationToken']
-    legacyReputationToken.faucet(11 * 10**6 * 10**18)
     universe = fixture.createUniverse()
     cash = fixture.getSeededCash()
-    augur = fixture.contracts['Augur']
-    fixture.distributeRep(universe)
-
-    if fixture.subFork:
-        forkingMarket = fixture.createReasonableYesNoMarket(universe, cash)
-        proceedToFork(fixture, forkingMarket, universe)
-        fixture.contracts["Time"].setTimestamp(universe.getForkEndTime() + 1)
-        reputationToken = fixture.applySignature('ReputationToken', universe.getReputationToken())
-        yesPayoutNumerators = [0, forkingMarket.getNumTicks()]
-        reputationToken.migrateOutByPayout(yesPayoutNumerators, False, reputationToken.balanceOf(tester.a0))
-        universe = fixture.applySignature('Universe', universe.createChildUniverse(yesPayoutNumerators, False))
-
+    augur = fixture.contracts['VeilAugur']
     yesNoMarket = fixture.createReasonableYesNoMarket(universe, cash)
     startingGas = fixture.chain.head_state.gas_used
     categoricalMarket = fixture.createReasonableCategoricalMarket(universe, 3, cash)
@@ -544,7 +519,7 @@ def kitchenSinkSnapshot(fixture, augurInitializedSnapshot):
     snapshot = fixture.createSnapshot()
     snapshot['universe'] = universe
     snapshot['cash'] = cash
-    snapshot['augur'] = augur
+    snapshot['veilAugur'] = augur
     snapshot['yesNoMarket'] = yesNoMarket
     snapshot['categoricalMarket'] = categoricalMarket
     snapshot['scalarMarket'] = scalarMarket
@@ -564,8 +539,8 @@ def cash(kitchenSinkFixture, kitchenSinkSnapshot):
     return ABIContract(kitchenSinkFixture.chain, kitchenSinkSnapshot['cash'].translator, kitchenSinkSnapshot['cash'].address)
 
 @pytest.fixture
-def augur(kitchenSinkFixture, kitchenSinkSnapshot):
-    return ABIContract(kitchenSinkFixture.chain, kitchenSinkSnapshot['augur'].translator, kitchenSinkSnapshot['augur'].address)
+def veilAugur(kitchenSinkFixture, kitchenSinkSnapshot):
+    return ABIContract(kitchenSinkFixture.chain, kitchenSinkSnapshot['veilAugur'].translator, kitchenSinkSnapshot['veilAugur'].address)
 
 @pytest.fixture
 def market(kitchenSinkFixture, kitchenSinkSnapshot):
@@ -583,7 +558,6 @@ def categoricalMarket(kitchenSinkFixture, kitchenSinkSnapshot):
 def scalarMarket(kitchenSinkFixture, kitchenSinkSnapshot):
     return ABIContract(kitchenSinkFixture.chain, kitchenSinkSnapshot['scalarMarket'].translator, kitchenSinkSnapshot['scalarMarket'].address)
 
-# TODO: globally replace this with `fixture` and `kitchenSinkSnapshot` as appropriate then delete this
 @pytest.fixture(scope="session")
 def sessionFixture(fixture, kitchenSinkSnapshot):
     fixture.resetToSnapshot(kitchenSinkSnapshot)

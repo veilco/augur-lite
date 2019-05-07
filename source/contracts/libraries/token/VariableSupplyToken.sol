@@ -1,4 +1,4 @@
-pragma solidity 0.4.25;
+pragma solidity 0.4.26;
 
 import 'libraries/token/StandardToken.sol';
 
@@ -35,9 +35,9 @@ contract VariableSupplyToken is StandardToken {
     return true;
   }
 
-  // Subclasses of this token may want to send additional logs through the centralized VeilAugur log emitter contract
+  // Subclasses of this token may want to send additional logs through the centralized AugurLite log emitter contract
   function onMint(address, uint256) internal returns (bool);
 
-  // Subclasses of this token may want to send additional logs through the centralized VeilAugur log emitter contract
+  // Subclasses of this token may want to send additional logs through the centralized AugurLite log emitter contract
   function onBurn(address, uint256) internal returns (bool);
 }
