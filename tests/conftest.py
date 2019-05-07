@@ -363,7 +363,6 @@ class ContractsFixture:
         return testNetDenominationToken
 
     def approveCentralAuthority(self):
-        return True
         authority = self.contracts['AugurLite']
         contractsToApprove = ['TestNetDenominationToken']
         testersGivingApproval = [getattr(tester, 'k%i' % x) for x in range(0,10)]
@@ -397,31 +396,21 @@ class ContractsFixture:
         shareToken = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['ShareToken']), shareTokenAddress)
         return shareToken
 
-    def getOrCreateChildUniverse(self, parentUniverse, market, payoutDistribution):
-        assert payoutDistributionHash
-        childUniverseAddress = parentUniverse.getOrCreateChildUniverse(payoutDistribution, False)
-        assert childUniverseAddress
-        childUniverse = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Universe']), childUniverseAddress)
-        return childUniverse
-
     def createYesNoMarket(self, universe, endTime, feePerEthInWei, denominationToken, oracle, sender=tester.k0, topic="", description="description", extraInfo=""):
-        marketCreationFee = universe.getOrCacheMarketCreationCost()
-        marketAddress = universe.createYesNoMarket(endTime, feePerEthInWei, denominationToken.address, oracle, topic, description, extraInfo, value = marketCreationFee, sender=sender)
+        marketAddress = universe.createYesNoMarket(endTime, feePerEthInWei, denominationToken.address, oracle, topic, description, extraInfo, sender=sender)
         assert marketAddress
         market = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Market']), marketAddress)
         return market
 
     def createCategoricalMarket(self, universe, numOutcomes, endTime, feePerEthInWei, denominationToken, oracle, sender=tester.k0, topic="", description="description", extraInfo=""):
-        marketCreationFee = universe.getOrCacheMarketCreationCost()
         outcomes = [" "] * numOutcomes
-        marketAddress = universe.createCategoricalMarket(endTime, feePerEthInWei, denominationToken.address, oracle, outcomes, topic, description, extraInfo, value = marketCreationFee, sender=sender)
+        marketAddress = universe.createCategoricalMarket(endTime, feePerEthInWei, denominationToken.address, oracle, outcomes, topic, description, extraInfo, sender=sender)
         assert marketAddress
         market = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Market']), marketAddress)
         return market
 
     def createScalarMarket(self, universe, endTime, feePerEthInWei, denominationToken, maxPrice, minPrice, numTicks, oracle, sender=tester.k0, description="description", extraInfo=""):
-        marketCreationFee = universe.getOrCacheMarketCreationCost()
-        marketAddress = universe.createScalarMarket(endTime, feePerEthInWei, denominationToken.address, oracle, minPrice, maxPrice, numTicks, "", description, extraInfo, value = marketCreationFee, sender=sender)
+        marketAddress = universe.createScalarMarket(endTime, feePerEthInWei, denominationToken.address, oracle, minPrice, maxPrice, numTicks, "", description, extraInfo, sender=sender)
         assert marketAddress
         market = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Market']), marketAddress)
         return market
@@ -498,7 +487,7 @@ def augurInitializedWithMocksSnapshot(fixture, augurInitializedSnapshot):
 def kitchenSinkSnapshot(fixture, augurInitializedSnapshot):
     fixture.resetToSnapshot(augurInitializedSnapshot)
     universe = fixture.createUniverse()
-    testNetDenominationToken = fixture.getSeededTestnetDenominationToken()
+    testNetDenominationToken = fixture.contracts['TestNetDenominationToken']
     augurLite = fixture.contracts['AugurLite']
     yesNoMarket = fixture.createReasonableYesNoMarket(universe, testNetDenominationToken)
     startingGas = fixture.chain.head_state.gas_used

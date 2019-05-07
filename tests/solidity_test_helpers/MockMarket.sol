@@ -4,7 +4,7 @@ import 'reporting/IMarket.sol';
 import 'reporting/IUniverse.sol';
 import 'reporting/IMailbox.sol';
 import 'libraries/ITyped.sol';
-import 'TEST/MockVariableSupplyToken.sol';
+import 'libraries/token/ERC20.sol';
 
 
 contract MockMarket is IMarket {
@@ -12,7 +12,7 @@ contract MockMarket is IMarket {
   bytes32 private derivePayoutDistributionHashValue;
   uint256 private numberOfOutcomes;
   uint256 private numTicks;
-  MockVariableSupplyToken private denominationToken;
+  ERC20 private denominationToken;
   IShareToken private shareToken;
   address private oracle;
   uint256 private marketCreatorSettlementFeeDivisor;
@@ -27,7 +27,7 @@ contract MockMarket is IMarket {
   uint256 private initializeNumOutcomesValue;
   uint256 private initializeNumTicksValue;
   uint256 private initializeFeePerEthInAttoethValue;
-  MockVariableSupplyToken private initializeTokenValue;
+  ERC20 private initializeTokenValue;
   address private initializeCreatorValue;
   IMailbox private setMarketCreatorMailbox;
   /*
@@ -49,16 +49,12 @@ contract MockMarket is IMarket {
     numTicks = _numTicks;
   }
 
-  function setDenominationToken(MockVariableSupplyToken _denominationToken) public {
+  function setDenominationToken(ERC20 _denominationToken) public {
     denominationToken = _denominationToken;
   }
 
   function setShareToken(IShareToken _shareToken)  public {
     shareToken = _shareToken;
-  }
-
-  function setDesignatedReporter(address _designatedReporter) public {
-    designatedReporter = _designatedReporter;
   }
 
   function setMarketCreatorSettlementFeeDivisor(uint256 _marketCreatorSettlementFeeDivisor) public {
@@ -109,16 +105,12 @@ contract MockMarket is IMarket {
     return initializeFeePerEthInAttoethValue;
   }
 
-  function getInitializeTokenValue() public view returns(MockVariableSupplyToken) {
+  function getInitializeTokenValue() public view returns(ERC20) {
     return initializeTokenValue;
   }
 
   function getInitializeCreatorValue() public returns(address) {
     return initializeCreatorValue;
-  }
-
-  function callTrustedMarketTransfer(IReputationToken _reputationToken, address _source, address _destination, uint256 _attotokens) public returns (bool) {
-    return _reputationToken.trustedMarketTransfer(_source, _destination, _attotokens);
   }
 
   function setMarketCreatorMailboxValue(IMailbox _setMarketCreatorMailbox) public {
@@ -140,7 +132,7 @@ contract MockMarket is IMarket {
     return "Market";
   }
 
-  function initialize(IUniverse _universe, uint256 _endTime, uint256 _feePerEthInAttoeth, MockVariableSupplyToken _token, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public payable returns (bool _success) {
+  function initialize(IUniverse _universe, uint256 _endTime, uint256 _feePerEthInAttoeth, ERC20 _token, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public returns (bool _success) {
     initializeUniverseValue = _universe;
     initializeEndTime = _endTime;
     initializeNumOutcomesValue = _numOutcomes;
@@ -168,7 +160,7 @@ contract MockMarket is IMarket {
     return numTicks;
   }
 
-  function getDenominationToken() public view returns (MockVariableSupplyToken) {
+  function getDenominationToken() public view returns (ERC20) {
     return denominationToken;
   }
 

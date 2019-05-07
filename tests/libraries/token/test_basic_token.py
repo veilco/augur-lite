@@ -40,7 +40,7 @@ def test_basic_token_emit(localFixture, mockToken):
 def localSnapshot(fixture, augurInitializedSnapshot):
     fixture.resetToSnapshot(augurInitializedSnapshot)
     controller = fixture.contracts['Controller']
-    mockAugur = fixture.uploadAndAddToController("solidity_test_helpers/MockAugur.sol", "Augur")
+    mockAugurLite = fixture.uploadAndAddToController("solidity_test_helpers/MockAugurLite.sol", "AugurLite")
     mockToken = fixture.uploadAndAddToController("solidity_test_helpers/MockToken.sol")
     return fixture.createSnapshot()
 
@@ -50,8 +50,8 @@ def localFixture(fixture, localSnapshot):
     return fixture
 
 @fixture
-def mockAugur(localFixture):
-    return localFixture.contracts['MockAugur']
+def mockAugurLite(localFixture):
+    return localFixture.contracts['MockAugurLite']
 
 @fixture
 def chain(localFixture):

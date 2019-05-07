@@ -3,7 +3,7 @@ pragma solidity 0.4.26;
 import 'reporting/IMarket.sol';
 import 'reporting/IUniverse.sol';
 import 'trading/IShareToken.sol';
-import 'trading/ICash.sol';
+import 'libraries/token/ERC20.sol';
 
 
 contract MaliciousMarket {
@@ -22,7 +22,7 @@ contract MaliciousMarket {
     return victimMarket.getNumberOfOutcomes();
   }
 
-  function getDenominationToken() public view returns (ICash) {
+  function getDenominationToken() public view returns (ERC20) {
     return victimMarket.getDenominationToken();
   }
 

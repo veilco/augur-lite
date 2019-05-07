@@ -65,6 +65,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
       shareTokens.push(createShareToken(_outcome));
     }
     require(denominationToken.approve(controller.lookup("CompleteSets"), APPROVAL_AMOUNT)); // Mert
+    require(denominationToken.approve(controller.lookup("ClaimTradingProceeds"), APPROVAL_AMOUNT)); // Mert
     return true;
   }
 

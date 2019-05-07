@@ -20,12 +20,6 @@ def test_log_requires(augur, universe):
     with raises(TransactionFailed):
         augur.logMarketCreated("", "", "", augur.address, augur.address, augur.address, 0, 100, 0)
 
-    with raises(TransactionFailed):
-        augur.logInitialReportSubmitted(universe.address, universe.address, universe.address, 1, False, [0, 10000], False)
-
-    with raises(TransactionFailed):
-        augur.logInitialReportSubmitted(augur.address, augur.address, augur.address, 1, False, [0, 10000], False)
-
 @pytest_fixture(scope="session")
 def localSnapshot(fixture, kitchenSinkSnapshot):
     fixture.resetToSnapshot(kitchenSinkSnapshot)

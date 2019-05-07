@@ -4,7 +4,7 @@ from pytest import fixture, raises
 from ethereum.tools.tester import TransactionFailed
 
 numTicks = 10 ** 10
-def test_market_creation(localFixture, mockUniverse, mockFeeWindow, mockTestNetDenominationToken, chain, constants, mockMarket, mockReputationToken, mockShareToken, mockShareTokenFactory):
+def test_market_creation(localFixture, mockUniverse, mockTestNetDenominationToken, chain, mockMarket, mockShareToken, mockShareTokenFactory):
     fee = 16
     oneEther = 10 ** 18
     endTime = localFixture.contracts["Time"].getTimestamp() + 259200
@@ -17,46 +17,22 @@ def test_market_creation(localFixture, mockUniverse, mockFeeWindow, mockTestNetD
     with raises(TransactionFailed, message="outcomes has to be less than 9"):
         market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 9, numTicks)
 
-    with raises(TransactionFailed, message="numTicks needs to be divisable by outcomes"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 7, numTicks)
-
     with raises(TransactionFailed, message="fee per eth can not be greater than max fee per eth in attoEth"):
         market.initialize(mockUniverse.address, endTime, oneEther / 2 + 1, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
 
     with raises(TransactionFailed, message="creator address can not be 0"):
         market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, longToHexString(0), tester.a1, 5, numTicks)
 
-    with raises(TransactionFailed, message="designated reporter address can not be 0"):
+    with raises(TransactionFailed, message="oracle address can not be 0"):
         market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, longToHexString(0), 5, numTicks)
 
-    mockUniverse.setForkingMarket(mockMarket.address)
-    with raises(TransactionFailed, message="forking market address has to be 0"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
-
-    mockUniverse.setForkingMarket(longToHexString(0))
-    mockReputationToken.setBalanceOf(0)
-    mockUniverse.setOrCacheDesignatedReportNoShowBond(100)
-    with raises(TransactionFailed, message="reporting window reputation token does not have enough balance"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
-
-    badCash = localFixture.upload('../source/contracts/trading/Cash.sol', 'uncontrolledCash')
-    with raises(TransactionFailed, message="the denomination token must be a valid cash implementation"):
-        market.initialize(mockUniverse.address, endTime, fee, badCash.address, tester.a1, tester.a1, 5, numTicks, value=100)
-
-    mockReputationToken.setBalanceOf(100)
-    mockUniverse.setOrCacheTargetReporterGasCosts(15)
-    mockUniverse.setOrCacheValidityBond(12)
-    with raises(TransactionFailed, message="refund is not over 0"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks, value=0)
-
     mockShareTokenFactory.resetCreateShareToken()
-    assert market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks, value=100)
+    assert market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
     assert mockShareTokenFactory.getCreateShareTokenMarketValue() == market.address
     assert mockShareTokenFactory.getCreateShareTokenOutcomeValue() == 5 - 1 # mock logs the last outcome
     assert market.getTypeName() == stringToBytes("Market")
     assert market.getUniverse() == mockUniverse.address
-    assert market.getUniverse() == mockUniverse.address
-    assert market.getDesignatedReporter() == bytesToHexString(tester.a1)
+    assert market.getOracle() == bytesToHexString(tester.a1)
     assert market.getNumberOfOutcomes() == 5
     assert market.getEndTime() == endTime
     assert market.getNumTicks() == numTicks
@@ -68,72 +44,28 @@ def test_market_creation(localFixture, mockUniverse, mockFeeWindow, mockTestNetD
     assert mockShareTokenFactory.getCreateShareToken(2) == market.getShareToken(2)
     assert mockShareTokenFactory.getCreateShareToken(3) == market.getShareToken(3)
     assert mockShareTokenFactory.getCreateShareToken(4) == market.getShareToken(4)
-    assert mockUniverse.getOrCacheValidityBondWallCalled() == True
 
-def test_initial_report(localFixture, initializedMarket, mockReputationToken, mockUniverse, mockInitialReporter):
-    # We can't do the initial report till the market has ended
+def test_resolve(localFixture, initializedMarket, mockUniverse):
+    # We can't resolve till the market has ended
     with raises(TransactionFailed, message="initial report allowed before market end time"):
-        initializedMarket.doInitialReport([initializedMarket.getNumTicks(), 0, 0, 0, 0], False, sender=tester.k1)
+        initializedMarket.resolve([initializedMarket.getNumTicks(), 0, 0, 0, 0], False, sender=tester.k1)
 
     localFixture.contracts["Time"].setTimestamp(initializedMarket.getEndTime() + 1)
 
     # Only the designated reporter can report at this time
-    with raises(TransactionFailed, message="only the designated reporter can report at this time"):
-        assert initializedMarket.doInitialReport([initializedMarket.getNumTicks(), 0, 0, 0, 0], False)
-    repBalance = 10 ** 4
-    initBond = 10 ** 8
-    mockUniverse.setOrCacheDesignatedReportStake(initBond)
-    mockReputationToken.setBalanceOf(repBalance)
-    assert initializedMarket.doInitialReport([initializedMarket.getNumTicks(), 0, 0, 0, 0], False, sender=tester.k1)
-    # verify creator gets back rep bond
-    assert mockReputationToken.getTransferValueFor(tester.a2) == repBalance
-    # verify init reporter pays init rep bond
-    assert mockReputationToken.getTrustedTransferSourceValue() == bytesToHexString(tester.a1)
-    assert mockReputationToken.getTrustedTransferAttotokensValue() == initBond
-    initialReporter = localFixture.applySignature("InitialReporter", initializedMarket.getInitialReporter())
-    assert mockReputationToken.getTrustedTransferDestinationValue() == initialReporter.address
-    assert mockInitialReporter.reportWasCalled() == True
+    with raises(TransactionFailed, message="only the oracle can report at this time"):
+        assert initializedMarket.resolve([initializedMarket.getNumTicks(), 0, 0, 0, 0], False)
 
-def test_finalize(localFixture, chain, initializedMarket, mockInitialReporter, mockNextFeeWindow, mockUniverse):
-    with raises(TransactionFailed, message="can't finalize without an initial report"):
-        initializedMarket.finalize()
-
-    localFixture.contracts["Time"].setTimestamp(initializedMarket.getEndTime() + 1)
-    assert initializedMarket.doInitialReport([initializedMarket.getNumTicks(), 0, 0, 0, 0], False, sender=tester.k1)
-    mockInitialReporter.setReportTimestamp(1)
-
-    with raises(TransactionFailed, message="can't finalize before the fee window is over"):
-        initializedMarket.finalize()
-
-    mockNextFeeWindow.setIsOver(True)
-
-    mockUniverse.setForkingMarket(longToHexString(1))
-
-    with raises(TransactionFailed, message="can't finalize if there is a forking market"):
-        initializedMarket.finalize()
-
-    mockUniverse.setForkingMarket(longToHexString(0))
-
-    mockInitialReporter.setPayoutDistributionHash(longTo32Bytes(2))
-
-    assert initializedMarket.finalize()
-    # since market is not the forking market tentative winning hash will be the winner
-    assert initializedMarket.getWinningPayoutDistributionHash() == longTo32Bytes(2)
+    assert initializedMarket.resolve([initializedMarket.getNumTicks(), 0, 0, 0, 0], False, sender=tester.k1)
+    assert initializedMarket.isResolved()
 
 def test_approve_spenders(localFixture, initializedMarket, mockTestNetDenominationToken, mockShareTokenFactory):
     approvalAmount = 2**256-1
     # approveSpender was called as part of market initialization
-    initializedMarket.approveSpenders()
     CompleteSets = localFixture.contracts['CompleteSets']
     assert mockTestNetDenominationToken.getApproveValueFor(CompleteSets.address) == approvalAmount
     ClaimTradingProceeds = localFixture.contracts['ClaimTradingProceeds']
     assert mockTestNetDenominationToken.getApproveValueFor(ClaimTradingProceeds.address) == approvalAmount
-
-    # verify all shared tokens have approved amount for fill order contract
-    # this market only has 5 outcomes
-    for index in range(5):
-        shareToken = localFixture.applySignature('MockShareToken', mockShareTokenFactory.getCreateShareToken(index));
-        assert shareToken.getApproveValueFor(FillOrder.address) == approvalAmount
 
 @fixture(scope="module")
 def localSnapshot(fixture, augurInitializedWithMocksSnapshot):
@@ -160,7 +92,7 @@ def localSnapshot(fixture, augurInitializedWithMocksSnapshot):
     endTime = fixture.contracts["Time"].getTimestamp() + 259200
     market.setController(fixture.contracts["Controller"].address)
 
-    assert market.initialize(mockUniverse.address, endTime, 16, mockTestNetDenominationToken.address, tester.a1, tester.a2, 5, numTicks, value=100)
+    assert market.initialize(mockUniverse.address, endTime, 16, mockTestNetDenominationToken.address, tester.a1, tester.a2, 5, numTicks)
 
     return fixture.createSnapshot()
 
@@ -172,10 +104,6 @@ def localFixture(fixture, localSnapshot):
 @fixture
 def mockUniverse(localFixture):
     return localFixture.contracts['MockUniverse']
-
-@fixture
-def constants(localFixture):
-    return localFixture.contracts['Constants']
 
 @fixture
 def mockTestNetDenominationToken(localFixture):
