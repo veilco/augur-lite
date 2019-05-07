@@ -39,4 +39,4 @@ def localFixture(fixture, localSnapshot):
 
 @pytest_fixture
 def augur(localFixture, localSnapshot):
-    return localFixture.contracts["VeilAugur"]
+    return localFixture.contracts["AugurLite"]

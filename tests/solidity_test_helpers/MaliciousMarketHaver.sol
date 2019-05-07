@@ -4,14 +4,14 @@ import 'reporting/IMarket.sol';
 
 
 contract MaliciousMarketHaver {
-    IMarket private market;
+  IMarket private market;
 
-    function getMarket()  public view returns (IMarket) {
-        return market;
-    }
+  function getMarket()  public view returns (IMarket) {
+    return market;
+  }
 
-    function setMarket(IMarket _market) public returns (bool) {
-        market = _market;
-        return true;
-    }
+  function setMarket(IMarket _market) public returns (bool) {
+    market = _market;
+    return true;
+  }
 }

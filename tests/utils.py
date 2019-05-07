@@ -107,7 +107,7 @@ class AssertLog():
         self.skip = skip
         self.contract = contract
         if not self.contract:
-            self.contract = fixture.contracts['Augur']
+            self.contract = fixture.contracts['AugurLite']
         self.logs = []
 
     def __enter__(self):

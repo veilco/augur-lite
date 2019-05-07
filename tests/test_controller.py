@@ -61,7 +61,7 @@ def localSnapshot(fixture, baseSnapshot):
     controller = fixture.upload('../source/contracts/Controller.sol')
     assert fixture.contracts['Controller'].owner() == bytesToHexString(tester.a0)
     fixture.upload('solidity_test_helpers/ControllerUser.sol')
-    fixture.uploadVeilAugur()
+    fixture.uploadAugurLite()
     return fixture.createSnapshot()
 
 @fixture

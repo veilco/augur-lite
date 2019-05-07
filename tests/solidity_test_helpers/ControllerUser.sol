@@ -6,14 +6,14 @@ import 'libraries/token/ERC20Basic.sol';
 
 
 contract ControllerUser is IControlled {
-    address public updatedController;
+  address public updatedController;
 
-    function getController() public view returns (IController) {
-        return IController(0);
-    }
+  function getController() public view returns (IController) {
+    return IController(0);
+  }
 
-    function setController(IController _controller) public returns(bool) {
-        updatedController = _controller;
-        return true;
-    }
+  function setController(IController _controller) public returns(bool) {
+    updatedController = _controller;
+    return true;
+  }
 }
