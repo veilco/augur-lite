@@ -3,7 +3,6 @@ from ethereum.tools.tester import ABIContract, TransactionFailed
 from pytest import fixture, mark, raises
 from utils import longTo32Bytes, PrintGasUsed, fix
 from datetime import timedelta
-from trading.test_claimTradingProceeds import acquireLongShares, finalizeMarket
 from reporting_utils import proceedToResolution
 
 # Market Methods

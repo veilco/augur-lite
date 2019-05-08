@@ -18,9 +18,9 @@ def test_publicBuyCompleteSets(contractsFixture, universe, testNetDenominationTo
     assert universe.getOpenInterestInAttoEth() == 0
 
     cost = 10 * market.getNumTicks()
-
-    # TODO: Mert
-    testNetDenominationToken.depositEther(value=cost, sender=tester.k1)
+    assert testNetDenominationToken.balanceOf(tester.a1) == 0, "Sender's testNetDenominationToken balance should be 0"
+    testNetDenominationToken.depositEther(sender=tester.k1, value=cost)
+    assert testNetDenominationToken.balanceOf(tester.a1) != 0, "Sender's testNetDenominationToken balance should not be 0"
 
     completeSetsPurchasedLog = {
         "universe": universe.address,
@@ -44,8 +44,6 @@ def test_publicBuyCompleteSets_failure(contractsFixture, universe, testNetDenomi
 
     amount = 10
     cost = 10 * market.getNumTicks()
-
-    # TODO: Mert
     testNetDenominationToken.depositEther(value=cost, sender=tester.k1)
 
     # Permissions exceptions
@@ -68,14 +66,18 @@ def test_publicSellCompleteSets(contractsFixture, universe, testNetDenominationT
     assert not yesShareToken.totalSupply()
     assert not noShareToken.totalSupply()
 
+    a = contractsFixture.chain.head_state.get_balance(tester.a1)
     cost = 10 * market.getNumTicks()
-    # TODO: Mert
-    testNetDenominationToken.depositEther(value=cost, sender=tester.k1)
+    testNetDenominationToken.depositEther(sender=tester.k1, value=cost)
+    assert testNetDenominationToken.balanceOf(tester.a1) != 0, "Sender's testNetDenominationToken balance should not be 0"
+
+    b = contractsFixture.chain.head_state.get_balance(tester.a1)
+    print (a - b)
     assert universe.getOpenInterestInAttoEth() == 0
     completeSets.publicBuyCompleteSets(market.address, 10, sender = tester.k1)
     assert universe.getOpenInterestInAttoEth() == 10 * market.getNumTicks()
-    initialTester1ETH = contractsFixture.chain.head_state.get_balance(tester.a1)
-    initialTester0ETH = contractsFixture.chain.head_state.get_balance(tester.a0)
+
+    initialTester1DenominationTokenBalance = testNetDenominationToken.balanceOf(tester.a1)
 
     completeSetsSoldLog = {
         "universe": universe.address,
@@ -92,17 +94,17 @@ def test_publicSellCompleteSets(contractsFixture, universe, testNetDenominationT
     assert noShareToken.balanceOf(tester.a1) == 1, "Should have 1 share of outcome no"
     assert yesShareToken.totalSupply() == 1
     assert noShareToken.totalSupply() == 1
-    assert contractsFixture.chain.head_state.get_balance(tester.a1) == initialTester1ETH + 88200
-    assert testNetDenominationToken.balanceOf(market.address) == 10000
     assert testNetDenominationToken.balanceOf(market.getMarketCreatorMailbox()) == 900
+    assert testNetDenominationToken.balanceOf(tester.a1) == (initialTester1DenominationTokenBalance + 88200 + testNetDenominationToken.balanceOf(market.getMarketCreatorMailbox()))
+    assert testNetDenominationToken.balanceOf(market.address) == 10000
 
 def test_publicSellCompleteSets_failure(contractsFixture, universe, testNetDenominationToken, market):
     completeSets = contractsFixture.contracts['CompleteSets']
 
     cost = 10 * market.getNumTicks()
-    # TODO: Mert
-    testNetDenominationToken.depositEther(value=cost, sender=tester.k1)
-    completeSets.publicBuyCompleteSets(market.address, 10, sender = tester.k1, value = cost)
+    assert testNetDenominationToken.balanceOf(tester.a1) == 0, "Sender's testNetDenominationToken balance should be 0"
+    testNetDenominationToken.depositEther(sender=tester.k1, value=cost)
+    assert testNetDenominationToken.balanceOf(tester.a1) != 0, "Sender's testNetDenominationToken balance should not be 0"
 
     # Permissions exceptions
     with raises(TransactionFailed):

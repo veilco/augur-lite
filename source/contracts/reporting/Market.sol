@@ -64,13 +64,19 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     for (uint256 _outcome = 0; _outcome < numOutcomes; _outcome++) {
       shareTokens.push(createShareToken(_outcome));
     }
-    require(denominationToken.approve(controller.lookup("CompleteSets"), APPROVAL_AMOUNT)); // Mert
-    require(denominationToken.approve(controller.lookup("ClaimTradingProceeds"), APPROVAL_AMOUNT)); // Mert
+    approveSpenders();
     return true;
   }
 
   function createShareToken(uint256 _outcome) private onlyInGoodTimes returns (IShareToken) {
     return ShareTokenFactory(controller.lookup("ShareTokenFactory")).createShareToken(controller, this, _outcome);
+  }
+
+  // This will need to be called manually for each open market if a spender contract is updated
+  function approveSpenders() public onlyInGoodTimes returns (bool) {
+    require(denominationToken.approve(controller.lookup("CompleteSets"), APPROVAL_AMOUNT));
+    require(denominationToken.approve(controller.lookup("ClaimTradingProceeds"), APPROVAL_AMOUNT));
+    return true;
   }
 
   function resolve(uint256[] _payoutNumerators, bool _invalid) public onlyInGoodTimes returns (bool) {
@@ -102,7 +108,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   function withdrawInEmergency() public onlyInBadTimes onlyOwner returns (bool) {
     if (address(this).balance > 0) {
-        msg.sender.transfer(address(this).balance);
+      msg.sender.transfer(address(this).balance);
     }
     return true;
   }

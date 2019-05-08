@@ -6,34 +6,20 @@ import 'libraries/token/VariableSupplyToken.sol';
 import 'libraries/DelegationTarget.sol';
 
 
-/**
- * @title TestNetDenominationToken
- */
 contract TestNetDenominationToken is DelegationTarget, ITyped, VariableSupplyToken {
 
   string constant public name = "TestNetDenominationToken";
   string constant public symbol = "TNDT";
   uint8 constant public decimals = 18;
 
-  function depositEther() external payable onlyInGoodTimes returns(bool) {
+  function depositEther() public payable returns(bool) {
     mint(msg.sender, msg.value);
-    assert(balanceOf(this) >= totalSupply());
+    assert(address(this).balance >= totalSupply());
     return true;
   }
 
-  function depositEtherFor(address _to) external payable onlyInGoodTimes returns(bool) {
-    mint(_to, msg.value);
-    assert(balanceOf(this) >= totalSupply());
-    return true;
-  }
-
-  function withdrawEther(uint256 _amount) external returns(bool) {
+  function withdrawEther(uint256 _amount) public returns(bool) {
     withdrawEtherInternal(msg.sender, msg.sender, _amount);
-    return true;
-  }
-
-  function withdrawEtherTo(address _to, uint256 _amount) external returns(bool) {
-    withdrawEtherInternal(msg.sender, _to, _amount);
     return true;
   }
 
@@ -41,18 +27,7 @@ contract TestNetDenominationToken is DelegationTarget, ITyped, VariableSupplyTok
     require(_amount > 0 && _amount <= balances[_from]);
     burn(_from, _amount);
     _to.transfer(_amount);
-    assert(balanceOf(this) >= totalSupply());
-    return true;
-  }
-
-  function withdrawEtherToIfPossible(address _to, uint256 _amount) external returns (bool) {
-    require(_amount > 0 && _amount <= balances[msg.sender]);
-    if (_to.send(_amount)) {
-      burn(msg.sender, _amount);
-    } else {
-      internalTransfer(msg.sender, _to, _amount);
-    }
-    assert(balanceOf(this) >= totalSupply());
+    assert(address(this).balance >= totalSupply());
     return true;
   }
 

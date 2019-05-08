@@ -62,6 +62,7 @@ def test_resolve(localFixture, initializedMarket, mockUniverse):
 def test_approve_spenders(localFixture, initializedMarket, mockTestNetDenominationToken, mockShareTokenFactory):
     approvalAmount = 2**256-1
     # approveSpender was called as part of market initialization
+    initializedMarket.approveSpenders()
     CompleteSets = localFixture.contracts['CompleteSets']
     assert mockTestNetDenominationToken.getApproveValueFor(CompleteSets.address) == approvalAmount
     ClaimTradingProceeds = localFixture.contracts['ClaimTradingProceeds']

@@ -357,11 +357,6 @@ class ContractsFixture:
     #### Helpers
     ####
 
-    def getSeededTestnetDenominationToken(self):
-        testNetDenominationToken = self.contracts['TestNetDenominationToken']
-        testNetDenominationToken.depositEther(value = 1, sender = tester.k9)
-        return testNetDenominationToken
-
     def approveCentralAuthority(self):
         authority = self.contracts['AugurLite']
         contractsToApprove = ['TestNetDenominationToken']

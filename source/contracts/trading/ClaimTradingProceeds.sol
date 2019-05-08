@@ -19,7 +19,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
     // NOTE: this requirement does _not_ enforce market finalization. That requirement occurs later on in this function when calling getWinningPayoutNumerator. When this requirement is removed we may want to consider explicitly requiring it here (or modifying this comment and keeping the gas savings)
     require(controller.getTimestamp() > _market.getResolutionTime());
 
-    ERC20 _denominationToken = _market.getDenominationToken();
+    ERC20 denominationToken = _market.getDenominationToken();
 
     for (uint256 _outcome = 0; _outcome < _market.getNumberOfOutcomes(); ++_outcome) {
       IShareToken _shareToken = _market.getShareToken(_outcome);
@@ -35,10 +35,10 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
         logTradingProceedsClaimed(_market, _shareToken, _shareHolder, _numberOfShares, _shareHolderShare);
       }
       if (_shareHolderShare > 0) {
-        require(_denominationToken.transferFrom(_market, _shareHolder, _shareHolderShare)); // Mert
+        require(denominationToken.transferFrom(_market, _shareHolder, _shareHolderShare));
       }
       if (_creatorShare > 0) {
-        require(_denominationToken.transferFrom(_market, _market.getMarketCreatorMailbox(), _creatorShare));
+        require(denominationToken.transferFrom(_market, _market.getMarketCreatorMailbox(), _creatorShare));
       }
     }
 
@@ -48,7 +48,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
   }
 
   function logTradingProceedsClaimed(IMarket _market, address _shareToken, address _sender, uint256 _numShares, uint256 _numPayoutTokens) private returns (bool) {
-    controller.getAugurLite().logTradingProceedsClaimed(_market.getUniverse(), _shareToken, _sender, _market, _numShares, _numPayoutTokens, _sender.balance.add(_numPayoutTokens));
+    controller.getAugurLite().logTradingProceedsClaimed(_market.getUniverse(), _shareToken, _sender, _market, _numShares, _numPayoutTokens, _market.getDenominationToken().balanceOf(_sender).add(_numPayoutTokens));
     return true;
   }
 

@@ -13,7 +13,7 @@ contract Delegator is DelegationTarget {
   function() external payable {
     // Do nothing if we haven't properly set up the delegator to delegate calls
     if (controllerLookupName == 0) {
-        return;
+      return;
     }
 
     // Get the delegation target contract
