@@ -4,11 +4,11 @@
 
 ## Contracts
 
-**AugurLite:** Similar to Augur's version, this contract is responsible for logging protocol-wide events, controlling transfers of denomination tokens (most commonly DAI), and creating the genesis universe using the UniverseFactory. The contract doesn't have any of the forking functionality for the universes.
+**AugurLite:** Similar to Augur's version, this contract is responsible for logging protocol-wide events, controlling transfers of denomination tokens, and creating the genesis universe using the UniverseFactory. The contract doesn't have any of the forking functionality for the universes.
 
-**Universe:** Created by the AugurLite contract. Conceptually, it's a container for markets. New markets (scalar, yesno, categorical) are created by calling this contract that in turn uses MarketFactory contracts. The Universe contract also keeps track of open interest across all markets. This contract doesn't have any concept of forking, fee windows, reporting fees, REP etc.
+**Universe:** Created by the AugurLite contract. Conceptually, it's a container for markets. New markets (scalar, yesno, categorical) are created by calling this contract that in turn uses MarketFactory contracts. The Universe contract stores the denomination token that'll be used for the markets created in the universe. This contract doesn't have any concept of forking, fee windows, reporting fees, open interest, REP etc.
 
-**Market:** Specifies market details. It's a simplified version of Augur's market contract (ie most fields are the same). Upon market creation, a market creator mailbox is created through the MailboxFactory, and share tokens are created through the ShareTokenFactory. Market creator mailbox is used to collect market creator fees. The concepts of initial reporter and reporting participants are removed, as there is a single oracle address. The market reporting and finalization process is simplified to a single resolve method. The market denomination token is not hard-coded to be CASH, but can be any ERC-20 compliant token (ie DAI).
+**Market:** Specifies market details. It's a simplified version of Augur's market contract (ie most fields are the same). Upon market creation, a market creator mailbox is created through the MailboxFactory, and share tokens are created through the ShareTokenFactory. Market creator mailbox is used to collect market creator fees. The concepts of initial reporter and reporting participants are removed, as there is a single oracle address. The market reporting and finalization process is simplified to a single resolve method. The market denomination token can only be the Universe denomination token. TODO: Maybe don't store the denomination token on the market.
 
 **ShareToken:** Mintable/burnable ERC-20 token that represents outcomes in markets. Created by ShareTokenFactory.
 
@@ -31,8 +31,7 @@
     -   There are no reporting fees. This means creating markets on AugurLite does not require validity or no-show bonds, and is much cheaper. Users only pay market creator fees that are deducted when users sell complete sets or claim trading proceeds.
     -   There are no fee windows or fee tokens. The single “oracle” address has the final say on the resolution of the market.
     -   There’s no concept of forking. There’s a single genesis universe which contains all markets and all share tokens. This universe keeps track of open interest across markets.
--   AugurLite markets can you use any ERC-20 compliant token as denomination tokens, not just CASH. NOTE: This will change to only allow a single currency.
-    -   Veil will support markets denominated in DAI.
+-   AugurLite markets can you use any ERC-20 compliant token as denomination tokens, not just CASH. Instead of Augur-wide specific, the denomination token is specified at the Universe level.
 -   Augur contracts were written in Solidity version 0.4.20. AugurLite contracts are updated to use the most recent stable version of version 0.4.xx: 0.4.26.
 -   Following all the changes above, the deployment and testing scripts are much simpler and more streamlined.
 

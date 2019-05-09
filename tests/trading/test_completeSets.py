@@ -15,7 +15,7 @@ def test_publicBuyCompleteSets(contractsFixture, universe, testNetDenominationTo
     assert not testNetDenominationToken.balanceOf(market.address)
     assert not yesShareToken.totalSupply()
     assert not noShareToken.totalSupply()
-    assert universe.getOpenInterestInAttoEth() == 0
+    # assert universe.getOpenInterestInAttoEth() == 0
 
     cost = 10 * market.getNumTicks()
     assert testNetDenominationToken.balanceOf(tester.a1) == 0, "Sender's testNetDenominationToken balance should be 0"
@@ -37,7 +37,7 @@ def test_publicBuyCompleteSets(contractsFixture, universe, testNetDenominationTo
     assert testNetDenominationToken.balanceOf(market.address) == cost, "Increase in market's testNetDenominationToken should equal the cost to purchase the complete set"
     assert yesShareToken.totalSupply() == 10, "Increase in yes shares purchased for this market should be 10"
     assert noShareToken.totalSupply() == 10, "Increase in yes shares purchased for this market should be 10"
-    assert universe.getOpenInterestInAttoEth() == cost, "Open interest in the universe increases by the cost in denomination token of the sets purchased"
+    # assert universe.getOpenInterestInAttoEth() == cost, "Open interest in the universe increases by the cost in denomination token of the sets purchased"
 
 def test_publicBuyCompleteSets_failure(contractsFixture, universe, testNetDenominationToken, market):
     completeSets = contractsFixture.contracts['CompleteSets']
@@ -73,9 +73,9 @@ def test_publicSellCompleteSets(contractsFixture, universe, testNetDenominationT
 
     b = contractsFixture.chain.head_state.get_balance(tester.a1)
     print (a - b)
-    assert universe.getOpenInterestInAttoEth() == 0
+    # assert universe.getOpenInterestInAttoEth() == 0
     completeSets.publicBuyCompleteSets(market.address, 10, sender = tester.k1)
-    assert universe.getOpenInterestInAttoEth() == 10 * market.getNumTicks()
+    # assert universe.getOpenInterestInAttoEth() == 10 * market.getNumTicks()
 
     initialTester1DenominationTokenBalance = testNetDenominationToken.balanceOf(tester.a1)
 
@@ -88,7 +88,7 @@ def test_publicSellCompleteSets(contractsFixture, universe, testNetDenominationT
     with AssertLog(contractsFixture, "CompleteSetsSold", completeSetsSoldLog):
         result = completeSets.publicSellCompleteSets(market.address, 9, sender=tester.k1)
 
-    assert universe.getOpenInterestInAttoEth() == 1 * market.getNumTicks()
+    # assert universe.getOpenInterestInAttoEth() == 1 * market.getNumTicks()
 
     assert yesShareToken.balanceOf(tester.a1) == 1, "Should have 1 share of outcome yes"
     assert noShareToken.balanceOf(tester.a1) == 1, "Should have 1 share of outcome no"

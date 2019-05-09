@@ -19,7 +19,7 @@ contract AugurLite is Controlled, IAugurLite {
 
   event MarketCreated(bytes32 indexed topic, string description, string extraInfo, address indexed universe, address market, address indexed marketCreator, bytes32[] outcomes, uint256 marketCreationFee, int256 minPrice, int256 maxPrice, IMarket.MarketType marketType);
   event MarketResolved(address indexed universe, address indexed market);
-  event UniverseCreated(address indexed universe, bool invalid);
+  event UniverseCreated(address indexed universe, ERC20 denominationToken);
   event CompleteSetsPurchased(address indexed universe, address indexed market, address indexed account, uint256 numCompleteSets);
   event CompleteSetsSold(address indexed universe, address indexed market, address indexed account, uint256 numCompleteSets);
   event TradingProceedsClaimed(address indexed universe, address indexed shareToken, address indexed sender, address market, uint256 numShares, uint256 numPayoutTokens, uint256 finalTokenBalance);
@@ -31,22 +31,22 @@ contract AugurLite is Controlled, IAugurLite {
   event EscapeHatchChanged(bool isOn);
   event TimestampSet(uint256 newTimestamp);
 
-  address private universe;
+  mapping(address => bool) private universes;
 
   //
   // Universe
   //
 
-  function createGenesisUniverse() public returns (IUniverse) {
+  function createUniverse(ERC20 _denominationToken) public returns (IUniverse) {
     UniverseFactory _universeFactory = UniverseFactory(controller.lookup("UniverseFactory"));
-    IUniverse _newUniverse = _universeFactory.createUniverse(controller);
-    universe = address(_newUniverse);
-    emit UniverseCreated(_newUniverse, false);
+    IUniverse _newUniverse = _universeFactory.createUniverse(controller, _denominationToken);
+    universes[_newUniverse] = true;
+    emit UniverseCreated(_newUniverse, _denominationToken);
     return _newUniverse;
   }
 
   function isKnownUniverse(IUniverse _universe) public view returns (bool) {
-    return universe == address(_universe);
+    return universes[_universe];
   }
 
   //

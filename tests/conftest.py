@@ -380,7 +380,7 @@ class ContractsFixture:
         return self.applySignature('shareToken', shareToken)
 
     def createUniverse(self):
-        universeAddress = self.contracts['AugurLite'].createGenesisUniverse()
+        universeAddress = self.contracts['AugurLite'].createUniverse(self.contracts['TestNetDenominationToken'].address)
         universe = self.applySignature('Universe', universeAddress)
         assert universe.getTypeName() == stringToBytes('Universe')
         return universe

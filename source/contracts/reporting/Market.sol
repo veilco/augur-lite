@@ -52,6 +52,8 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     require(_feePerEthInAttoeth <= MAX_FEE_PER_ETH_IN_ATTOETH);
     require(_creator != NULL_ADDRESS);
     require(controller.getTimestamp() < _endTime);
+    require(IUniverse(_universe).getDenominationToken() == _denominationToken);
+
     universe = _universe;
     owner = _creator;
     endTime = _endTime;
@@ -90,7 +92,6 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     payoutDistributionHash = derivePayoutDistributionHash(_payoutNumerators, _invalid);
     payoutNumerators = _payoutNumerators;
     invalid = _invalid;
-    universe.decrementOpenInterestFromMarket(shareTokens[0].totalSupply().mul(numTicks));
     controller.getAugurLite().logMarketResolved(universe);
     return true;
   }

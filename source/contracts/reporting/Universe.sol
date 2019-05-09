@@ -3,17 +3,24 @@ pragma solidity 0.4.26;
 import 'reporting/IUniverse.sol';
 import 'libraries/DelegationTarget.sol';
 import 'libraries/ITyped.sol';
+import 'libraries/Initializable.sol';
 import 'factories/MarketFactory.sol';
 import 'reporting/IMarket.sol';
 import 'libraries/math/SafeMathUint256.sol';
 import 'libraries/token/ERC20.sol';
 
 
-contract Universe is DelegationTarget, ITyped, IUniverse {
+contract Universe is DelegationTarget, Initializable, ITyped, IUniverse {
   using SafeMathUint256 for uint256;
 
   mapping(address => bool) private markets;
-  uint256 private openInterestInAttoEth;
+  ERC20 private denominationToken;
+
+  function initialize(ERC20 _denominationToken) external onlyInGoodTimes beforeInitialized returns (bool) {
+    endInitialization();
+    denominationToken = _denominationToken;
+    return true;
+  }
 
   function getTypeName() public view returns (bytes32) {
     return "Universe";
@@ -35,30 +42,8 @@ contract Universe is DelegationTarget, ITyped, IUniverse {
     return _legitMarket.isContainerForShareToken(_shadyShareToken);
   }
 
-  function decrementOpenInterest(uint256 _amount) public onlyInGoodTimes onlyWhitelistedCallers returns (bool) {
-    openInterestInAttoEth = openInterestInAttoEth.sub(_amount);
-    return true;
-  }
-
-  function decrementOpenInterestFromMarket(uint256 _amount) public returns (bool) {
-    require(isContainerForMarket(IMarket(msg.sender)));
-    openInterestInAttoEth = openInterestInAttoEth.sub(_amount);
-    return true;
-  }
-
-  function incrementOpenInterest(uint256 _amount) public onlyInGoodTimes onlyWhitelistedCallers returns (bool) {
-    openInterestInAttoEth = openInterestInAttoEth.add(_amount);
-    return true;
-  }
-
-  function incrementOpenInterestFromMarket(uint256 _amount) public onlyInGoodTimes returns (bool) {
-    require(isContainerForMarket(IMarket(msg.sender)));
-    openInterestInAttoEth = openInterestInAttoEth.add(_amount);
-    return true;
-  }
-
-  function getOpenInterestInAttoEth() public view returns (uint256) {
-    return openInterestInAttoEth;
+  function getDenominationToken() public view returns (ERC20) {
+    return denominationToken;
   }
 
   function createYesNoMarket(uint256 _endTime, uint256 _feePerEthInWei, ERC20 _denominationToken, address _oracle, bytes32 _topic, string _description, string _extraInfo) public onlyInGoodTimes returns (IMarket _newMarket) {

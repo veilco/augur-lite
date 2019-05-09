@@ -30,11 +30,6 @@ def test_universe_contains(localFixture, populatedUniverse, mockMarket, chain, m
     assert populatedUniverse.isContainerForMarket(mockMarket.address) == True
     assert populatedUniverse.isContainerForShareToken(mockShareToken.address) == True
 
-def test_open_interest(localFixture, populatedUniverse):
-    assert populatedUniverse.getOpenInterestInAttoEth() == 0
-    populatedUniverse.incrementOpenInterest(20)
-    assert populatedUniverse.getOpenInterestInAttoEth() == 20
-
 def test_universe_create_market(localFixture, chain, populatedUniverse, mockMarket, mockMarketFactory, mockTestNetDenominationToken, mockAugurLite):
     timestamp = localFixture.contracts["Time"].getTimestamp()
     endTimeValue = timestamp + 10

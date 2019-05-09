@@ -452,11 +452,11 @@ Deploying to: ${networkConfiguration.networkName}
       this.getContract("AugurLite").address,
       this.connector.gasPrice
     );
-    const universeAddress = await augurLite.createGenesisUniverse_();
+    const universeAddress = await augurLite.createUniverse_();
     if (!universeAddress || universeAddress == "0x") {
       throw new Error("Unable to create genesis universe. eth_call failed");
     }
-    await augurLite.createGenesisUniverse();
+    await augurLite.createUniverse();
     const universe = new Universe(
       this.connector,
       this.accountManager,

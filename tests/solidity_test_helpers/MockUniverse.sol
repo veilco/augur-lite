@@ -7,31 +7,25 @@ import 'libraries/Initializable.sol';
 import 'libraries/math/SafeMathUint256.sol';
 import 'factories/MarketFactory.sol';
 import 'Controller.sol';
+import 'libraries/Initializable.sol';
 import 'TEST/MockVariableSupplyToken.sol';
+import 'libraries/token/ERC20.sol';
 
 
 contract MockUniverse is Initializable, IUniverse {
   using SafeMathUint256 for uint256;
 
-  uint256 private setOpenInterestInAttoEthValue;
-  uint256 private setMarketCreationCostValue;
   bool private setIsContainerForMarketValue;
   bool private setIsContainerForShareTokenValue;
-  bool private setDecrementOpenInterestValue;
-  bool private setIncrementOpenInterestValue;
   MarketFactory private marketFactory;
   Controller private controller;
   bool private addMarketToWasCalledValue;
+  ERC20 private denominationToken;
   /*
   * setters to feed the getters and impl of IUniverse
   */
   function reset() public {
     addMarketToWasCalledValue = false;
-  }
-
-
-  function setOpenInterestInAttoEth(uint256 _setOpenInterestInAttoEthValue) public {
-    setOpenInterestInAttoEthValue = _setOpenInterestInAttoEthValue;
   }
 
   function setIsContainerForMarket(bool _setIsContainerForMarketValue) public {
@@ -42,14 +36,6 @@ contract MockUniverse is Initializable, IUniverse {
     setIsContainerForShareTokenValue = _setIsContainerForShareTokenValue;
   }
 
-  function setDecrementOpenInterest(bool _setDecrementOpenInterestValue) public {
-    setDecrementOpenInterestValue = _setDecrementOpenInterestValue;
-  }
-
-  function setIncrementOpenInterest(bool _setIncrementOpenInterestValue) public {
-    setIncrementOpenInterestValue = _setIncrementOpenInterestValue;
-  }
-
   /*
   * Impl of IUniverse and ITyped
    */
@@ -57,8 +43,13 @@ contract MockUniverse is Initializable, IUniverse {
     return "Universe";
   }
 
-  function getOpenInterestInAttoEth() public view returns (uint256) {
-    return setOpenInterestInAttoEthValue;
+  function initialize(ERC20 _denominationToken) external returns (bool) {
+    denominationToken = _denominationToken;
+    return true;
+  }
+
+  function getDenominationToken() public view returns (ERC20) {
+    return denominationToken;
   }
 
   function isContainerForMarket(IMarket _shadyTarget) public view returns (bool) {
@@ -67,22 +58,6 @@ contract MockUniverse is Initializable, IUniverse {
 
   function isContainerForShareToken(IShareToken _shadyTarget) public view returns (bool) {
     return setIsContainerForShareTokenValue;
-  }
-
-  function decrementOpenInterest(uint256 _amount) public returns (bool) {
-    return setDecrementOpenInterestValue;
-  }
-
-  function incrementOpenInterest(uint256 _amount) public returns (bool) {
-    return setIncrementOpenInterestValue;
-  }
-
-  function incrementOpenInterestFromMarket(uint256 _amount) public returns (bool) {
-    return true;
-  }
-
-  function decrementOpenInterestFromMarket(uint256 _amount) public returns (bool) {
-    return true;
   }
 
   function createYesNoMarket(uint256 _endTime, uint256 _feePerEthInWei, MockVariableSupplyToken _denominationToken, address _designatedReporterAddress, bytes32 _topic, string _description, string _extraInfo) public returns (IMarket _newMarket) {

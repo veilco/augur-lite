@@ -37,10 +37,6 @@ contract CompleteSets is Controlled, ReentrancyGuard, MarketValidator, IComplete
       _market.getShareToken(_outcome).createShares(_sender, _amount);
     }
 
-    if (!_market.isResolved()) {
-      _market.getUniverse().incrementOpenInterest(_cost);
-    }
-
     return true;
   }
 
@@ -57,9 +53,6 @@ contract CompleteSets is Controlled, ReentrancyGuard, MarketValidator, IComplete
     uint256 _numOutcomes = _market.getNumberOfOutcomes();
     ERC20 _denominationToken = _market.getDenominationToken();
     uint256 _payout = _amount.mul(_market.getNumTicks());
-    if (!_market.isResolved()) {
-      _market.getUniverse().decrementOpenInterest(_payout);
-    }
     uint256 _creatorFee = _market.deriveMarketCreatorFeeAmount(_payout);
     _payout = _payout.sub(_creatorFee);
 
