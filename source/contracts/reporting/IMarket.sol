@@ -24,8 +24,8 @@ contract IMarket is ITyped, IOwnable {
   function getShareToken(uint256 _outcome)  public view returns (IShareToken);
   function getEndTime() public view returns (uint256);
   function getMarketCreatorMailbox() public view returns (IMailbox);
-  function getWinningPayoutDistributionHash() public view returns (bytes32);
-  function getWinningPayoutNumerator(uint256 _outcome) public view returns (uint256);
+  function getPayoutDistributionHash() public view returns (bytes32);
+  function getPayoutNumerator(uint256 _outcome) public view returns (uint256);
   function getResolutionTime() public view returns (uint256);
   function getOracle() public view returns (address);
   function deriveMarketCreatorFeeAmount(uint256 _amount) public view returns (uint256);

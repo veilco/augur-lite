@@ -196,11 +196,11 @@ contract MockMarket is IMarket {
     return setMarketCreatorMailbox;
   }
 
-  function getWinningPayoutDistributionHash() public view returns (bytes32) {
+  function getPayoutDistributionHash() public view returns (bytes32) {
     return bytes32(0);
   }
 
-  function getWinningPayoutNumerator(uint256 _outcome) public view returns (uint256) {
+  function getPayoutNumerator(uint256 _outcome) public view returns (uint256) {
     return 0;
   }
 

@@ -35,7 +35,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   uint256 private feeDivisor;
   uint256 private endTime;
   uint256 private numOutcomes;
-  bytes32 private winningPayoutDistributionHash;
+  bytes32 private payoutDistributionHash;
   uint256 private resolutionTime;
   address private oracle;
   bool private invalid;
@@ -84,10 +84,10 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     require(getResolutionTime() == 0);
     require(_timestamp > endTime);
     require(msg.sender == getOracle());
-    require(winningPayoutDistributionHash == bytes32(0));
+    require(payoutDistributionHash == bytes32(0));
 
     resolutionTime = _timestamp;
-    winningPayoutDistributionHash = derivePayoutDistributionHash(_payoutNumerators, _invalid);
+    payoutDistributionHash = derivePayoutDistributionHash(_payoutNumerators, _invalid);
     payoutNumerators = _payoutNumerators;
     invalid = _invalid;
     universe.decrementOpenInterestFromMarket(shareTokens[0].totalSupply().mul(numTicks));
@@ -117,12 +117,12 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     return "Market";
   }
 
-  function getWinningPayoutDistributionHash() public view returns (bytes32) {
-    return winningPayoutDistributionHash;
+  function getPayoutDistributionHash() public view returns (bytes32) {
+    return payoutDistributionHash;
   }
 
   function isResolved() public view returns (bool) {
-    return winningPayoutDistributionHash != bytes32(0);
+    return payoutDistributionHash != bytes32(0);
   }
 
   function getEndTime() public view returns (uint256) {
@@ -142,7 +142,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     return address(oracle);
   }
 
-  function getWinningPayoutNumerator(uint256 _outcome) public view returns (uint256) {
+  function getPayoutNumerator(uint256 _outcome) public view returns (uint256) {
     require(isResolved());
     return payoutNumerators[_outcome];
   }
@@ -204,7 +204,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     // Market Open Interest. If we're resolved we need actually calculate the value
     if (isResolved()) {
       for (uint256 i = 0; i < numOutcomes; i++) {
-        _expectedBalance = _expectedBalance.add(shareTokens[i].totalSupply().mul(getWinningPayoutNumerator(i)));
+        _expectedBalance = _expectedBalance.add(shareTokens[i].totalSupply().mul(getPayoutNumerator(i)));
       }
     } else {
       _expectedBalance = _expectedBalance.add(shareTokens[0].totalSupply().mul(numTicks));

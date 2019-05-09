@@ -21,7 +21,7 @@ def test_market_creation(contractsFixture, universe, testNetDenominationToken, m
     assert market.getUniverse() == universe.address
     assert market.getNumberOfOutcomes() == 2
     assert numTicks == 10000
-    assert market.getWinningPayoutDistributionHash() == stringToBytes("")
+    assert market.getPayoutDistributionHash() == stringToBytes("")
     assert market.getInitialized()
 
     with raises(TransactionFailed, message="Cannot create a market with an end date in the past"):

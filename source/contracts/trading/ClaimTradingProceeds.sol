@@ -16,7 +16,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
   using SafeMathUint256 for uint256;
 
   function claimTradingProceeds(IMarket _market, address _shareHolder) marketIsLegit(_market) onlyInGoodTimes nonReentrant external returns(bool) {
-    // NOTE: this requirement does _not_ enforce market finalization. That requirement occurs later on in this function when calling getWinningPayoutNumerator. When this requirement is removed we may want to consider explicitly requiring it here (or modifying this comment and keeping the gas savings)
+    // NOTE: this requirement does _not_ enforce market finalization. That requirement occurs later on in this function when calling getPayoutNumerator. When this requirement is removed we may want to consider explicitly requiring it here (or modifying this comment and keeping the gas savings)
     require(controller.getTimestamp() > _market.getResolutionTime());
 
     ERC20 denominationToken = _market.getDenominationToken();
@@ -60,7 +60,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
   }
 
   function calculateProceeds(IMarket _market, uint256 _outcome, uint256 _numberOfShares) public view returns (uint256) {
-    uint256 _payoutNumerator = _market.getWinningPayoutNumerator(_outcome);
+    uint256 _payoutNumerator = _market.getPayoutNumerator(_outcome);
     return _numberOfShares.mul(_payoutNumerator);
   }
 
