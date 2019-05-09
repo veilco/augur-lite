@@ -2,6 +2,24 @@
 
 **_This repo is a fork of the Augur V1 contract code, available [here](https://github.com/AugurProject/augur-core)._**
 
+## Contracts
+
+**AugurLite:** Similar to Augur's version, this contract is responsible for logging protocol-wide events, controlling transfers of denomination tokens (most commonly DAI), and creating the genesis universe using the UniverseFactory. The contract doesn't have any of the forking functionality for the universes.
+
+**Universe:** Created by the AugurLite contract. Conceptually, it's a container for markets. New markets (scalar, yesno, categorical) are created by calling this contract that in turn uses MarketFactory contracts. The Universe contract also keeps track of open interest across all markets. This contract doesn't have any concept of forking, fee windows, reporting fees, REP etc.
+
+**Market:** Specifies market details. It's a simplified version of Augur's market contract (ie most fields are the same). Upon market creation, a market creator mailbox is created through the MailboxFactory, and share tokens are created through the ShareTokenFactory. Market creator mailbox is used to collect market creator fees. The concepts of initial reporter and reporting participants are removed, as there is a single oracle address. The market reporting and finalization process is simplified to a single resolve method. The market denomination token is not hard-coded to be CASH, but can be any ERC-20 compliant token (ie DAI).
+
+**ShareToken:** Mintable/burnable ERC-20 token that represents outcomes in markets. Created by ShareTokenFactory.
+
+**CompleteSets:** Contract that lets anyone buy and sell complete sets in a given market. 1 complete set consists of 1 of each share token in the market. 1 denomination token (ie DAI) buys 1 complete set. Selling a complete set returns the 1 denomination token (minus the market creator fee).
+
+**ClaimTradingProceeds:** Contract that lets anyone exchange their shares for market's denomination token.
+
+**Mailbox:** This contract is deployed per market and is owned by the market creator. It collects the market creator fees, and it's ownership can be transferred.
+
+**Factory Contracts:** MailboxFactory, MarketFactory, ShareTokenFactory, UniverseFactory. VeilAugur contract uses UniverseFactory to create the genesis universe. Universe contract uses MarketFactory to create new markets. Upon deployment, market contracts use MailboxFactory to create the market creator mailbox, and ShareTokenFactory to create outcome tokens.
+
 ## High-level Changes
 
 -   AugurLite removes all on-chain trading logic. AugurLite simply acts as an escrow layer, converting money into transferable share tokens and back.
