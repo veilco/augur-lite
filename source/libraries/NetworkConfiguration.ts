@@ -14,7 +14,7 @@ type Networks = {
 
 const networks: Networks = {
   kovan: {
-    isProduction: true,
+    isProduction: false,
     http: process.env.KOVAN_ETHEREUM_HTTP!,
     privateKey: process.env.KOVAN_PRIVATE_KEY!,
     gasPrice: new BN(1)

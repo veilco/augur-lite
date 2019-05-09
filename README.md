@@ -1,39 +1,56 @@
-# augur-core
+# augur-lite
 
-[![Build Status](https://travis-ci.com/AugurProject/augur-core.svg)](https://travis-ci.com/AugurProject/augur-core)
+**_This repo is a fork of the Augur V1 contract code, available [here](https://github.com/AugurProject/augur-core)._**
 
-# Important: V2 Development Moved to New Location
+## High-level Changes
 
-**_This repo contains the current Augur V1 contract code. All new contract development is available [in the new Augur monorepo](https://github.com/AugurProject/augur/tree/master/packages/augur-core)._**
+-   AugurLite removes all on-chain trading logic. AugurLite simply acts as an escrow layer, converting money into transferable share tokens and back.
+    -   As part of this change, all trading contracts except ClaimTradingProceeds and CompleteSets have been removed.
+    -   Because there is no on-chain trading, controller contracts like TradingEscapeHatch has been removed.
+-   AugurLite is oracle agnostic. That means there is no reporting or dispute process at the base protocol. During market creation, an “oracle” address is specified. This “oracle” can resolve a market upon expiration, and the result is final. Without a reporting/dispute process:
+    -   There’s no need for a native token (ie REP in Augur).
+    -   There’s no need for a concept like ReportingParticipants or DisputeCrowdsourcers. There is a single address (“oracle”), that can resolve markets (with a single “resolve” call), and all the resolution details are stored on the market.
+    -   There are no reporting fees. This means creating markets on AugurLite does not require validity or no-show bonds, and is much cheaper. Users only pay market creator fees that are deducted when users sell complete sets or claim trading proceeds.
+    -   There are no fee windows or fee tokens. The single “oracle” address has the final say on the resolution of the market.
+    -   There’s no concept of forking. There’s a single genesis universe which contains all markets and all share tokens. This universe keeps track of open interest across markets.
+-   AugurLite markets can you use any ERC-20 compliant token as denomination tokens, not just CASH. NOTE: This will change to only allow a single currency.
+    -   Veil will support markets denominated in DAI.
+-   Augur contracts were written in Solidity version 0.4.20. AugurLite contracts are updated to use the most recent stable version of version 0.4.xx: 0.4.26.
+-   Following all the changes above, the deployment and testing scripts are much simpler and more streamlined.
 
-## About
+While the origin Augur V1 codebase is massive, the main changes were made to following 5 contracts:
 
-Smart contracts for [Augur](https://augur.net), a decentralized prediction market platform on the [Ethereum](https://ethereum.org) blockchain.
-
-## Quick Setup
-
-If you just want to clone the repo and quickly have a couple local proof of authority networks (Geth/Clique and Parity/Aura) running with the contracts deployed then you can just clone the repo and run:
-
-```
-docker-compose -f source/support/test/integration/docker-compose-[geth/parity].yml up --build --force-recreate
-```
-
--   Parity HTTP RPC will be available on localhost port `47622`.
--   Geth HTTP RPC will be available on localhost port `47624`.
--   An abundant supply of ETH is available using the private key `0xfae42052f82bed612a724fec3632f325f377120592c75bb78adfcceae6470c5a`.
--   The log output will let you know what the address of the various Augur contracts are.
+-   source/contracts/reporting/Mailbox.sol
+-   source/contracts/reporting/Market.sol
+-   source/contracts/reporting/Universe.sol
+-   source/contracts/trading/ClaimTradingProceeds.sol
+-   source/contracts/trading/CompleteSets.sol
 
 ## Installation
 
-You need system-wide installations of Python 2.7.6+, Node.js 8+, and [Solidity 0.4.20](https://github.com/ethereum/solidity/releases/tag/v0.4.20). (Or Docker; see below.) Install the dependencies:
+You need system-wide installations of Python 3.7.3, Node.js 10.12, and [Solidity 0.4.26](https://github.com/ethereum/solidity/releases/tag/v0.4.26). On MacOS, you also need to use [venv](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) for package management.
+
+To setup venv:
 
 ```bash
-npm install npx
-npm install
+python3 -m venv venv # Creates venv directory to install Python packages
+source venv/bin/activate # Activates the virtual environment
+```
+
+Once your Python setup is complete, install the dependencies:
+
+```bash
+yarn install npx
+yarn
 pip install -r requirements.txt
 ```
 
-Note: on macOS, you need to use [virtualenv](https://python-guide-pt-br.readthedocs.io/en/latest/dev/virtualenvs/) or [homebrew](https://brew.sh/) Python to work around System Integrity Protection.
+Now, you should be able to compile contracts, build contract interfaces, and deploy contracts with:
+
+```bash
+yarn run build # Compiles contracts and builds contract interfaces
+yarn run deploy:kovan # Deploys contracts to Kovan
+```
 
 ## Deployment
 
@@ -57,116 +74,13 @@ Solidity contract deployment is handled by `ContractDeployer.ts` and the wrapper
 
 ## Tests
 
-The tests directory (augur-core/tests) contain tests and test fixtures to test the various functionalities present in Augur, including trading, reporting, and wcl tests.
-
--   conftest.py -- contains the class ContractFixture, which deals with caching compiled contracts, signatures, etc. as well as resetting the blockchain before each test.
--   delegation_sandbox.py -- tests the delegator contract.
--   sandbox.py -- used for testing miscellaneous Solidity behaviors
--   reporting -- contains tests for reporting purposes.
--   trading -- contains tests for trading purposes.
--   solidity_test_helpers -- small contracts to help run tests.
--   test_controller.py -- tests controller functionalities.
--   test_mutex.py -- tests mutex functionalities.
--   test_helpers.py -- tests the controller, safeMath, and assertNoValue macros.
--   utils.py -- contains useful functions for testing, such as conversion between different data types.
-
-Use pytest to run Augur's test suite:
-
-```bash
-pytest tests
-```
-
-This executes all the tests. To run a test individually, run the following:
-
-```bash
-pytest path/to/test_file.py -k 'name_of_test'
-```
-
-When writing tests, it is highly recommended to make use of the ContractFixtures class for "placeholder" variables. Python's unit testing framework comes handy here; encapsulate tests within functions that start with "test\_", and use `assert` statements when testing for certain values. Parameterized tests are recommended as well to test various possibilities and edge cases.
-
-## Coverage Report
-
-To generate a coverage report simply run the command:
-
-```
-node --max-old-space-size=12288 source/tools/generateCoverageReport.js
-```
-
-The results will be displayed on the command line and a much richer HTML output will be generated in the `coverage` folder of the project.
-
-Make sure you actually have enough memory to run the command above. The coverage tool being used will pull a massive file into memory to generate the report and will fail with an OOM exception if not enough is available. Since tests take about 40 minutes to run with coverage enabled this will be a sad event.
-
-## Docker
-
-augur-core can optionally be built, run, and tested using Docker. A number of Docker commands are included as npm scripts, which map to the non-Dockerized versions where this makes sense. Docker commands beginning with `docker:run` execute the command within the Docker image. Docker commands without `run` (e.g. `docker:test`) first build the image, then execute `docker:run:<command>`.
-
-### Build
-
-```bash
-npm run docker:build
-```
-
-### Test
-
-```bash
-# With a pre-built image
-npm run docker:run:test:unit:all
-
-# Build and run all unit tests and integration tests
-npm run docker:test
-
-# Build and run just integration tests (using Geth)
-npm run docker:run:test:integration:geth
-# Build and run just integration tests (using Parity)
-npm run docker:run:test:integration:parity
-```
-
-For quicker iteration on integration tests follow the instructions here to run tests locally against a node running in docker:
-
-https://github.com/AugurProject/augur-core/blob/7272124d985a4c38a2b4f6f599cc16014615cec9/.vscode/launch.json#L28-L35
-
-If the contracts aren't changing, after the first run you can add "AUGUR_CONTROLLER_ADDRESS": "..." to the env and it will even skip re-uploading the contracts with each run of the integration tests.
-
-## Running Oyente
-
-Install Oyente locally. This can be done by following the instructions on their GitHub: https://github.com/melonproject/oyente
-
-Run the oyente script with this command to get the output for all contracts:
-
-```
-python source/tools/runOyente.py -p
-```
+TODO
 
 ## Source code organization
 
 Augur's smart contracts are organized into four folders:
 
--   `source/contracts/factories`: Constructors for universes, markets, fee windows, etc.
+-   `source/contracts/factories`: Constructors for universes, markets etc.
 -   `source/contracts/libraries`: Data structures used elsewhere in the source code.
--   `source/contracts/reporting`: Creation and manipulation of universes, markets, fee windows, and reporting-related tokens.
--   `source/contracts/trading`: Functions to create, view, and fill orders, to issue and close out complete sets of shares, and for traders to claim proceeds after markets are closed.
-
-## Additional notes
-
-### General information about Augur
-
--   [A Roadmap For Augur and What's Next](https://medium.com/@AugurProject/a-roadmap-for-augur-and-whats-next-930fe6c7f75a)
--   [Augur Master Plan](https://medium.com/@AugurProject/augur-master-plan-42dda65a3e3d)
-
-### Terminology
-
-[Augur Terminology](http://blog.augur.net/faq/all-terms/)
-
-### EVM numbers are always integers
-
-There are no floating-point numbers in the EVM, only integers. Therefore, Ether and Reputation values in contracts are always represented in units of wei (i.e., indivisible units of 10^-18 Ether or 10^-18 Reputation).
-
-### Reporting diagrams
-
--   [Reporting flow diagram](https://pasteboard.co/1FcgIDWR2.png)
--   [More in-depth diagram](https://www.websequencediagrams.com/files/render?link=kUm7MBHLoO87M3m2dXzE)
--   [Market object graph](https://pasteboard.co/1WHGfXjB3.png)
-
-### Worst-case-loss escrow for trades
-
--   [Some notes on worst-case-loss/value-at-risk](https://github.com/AugurProject/augur-core/blob/master/tests/wcl.txt)
+-   `source/contracts/reporting`: Creation and manipulation of universes, and markets.
+-   `source/contracts/trading`: Functions to issue and close out complete sets of shares, and for traders to claim proceeds after markets are resolved.
