@@ -445,18 +445,23 @@ Deploying to: ${networkConfiguration.networkName}
   }
 
   private async createGenesisUniverse(): Promise<Universe> {
-    console.log("Creating genesis universe...");
     const augurLite = new AugurLite(
       this.connector,
       this.accountManager,
       this.getContract("AugurLite").address,
       this.connector.gasPrice
     );
-    const universeAddress = await augurLite.createUniverse_("TODO");
+    const denominationToken =
+      this.configuration.genesisDenominationTokenAddress ||
+      this.getContract("TestNetDenominationToken").address;
+    console.log(
+      `Creating genesis universe, with denomination token ${denominationToken}...`
+    );
+    const universeAddress = await augurLite.createUniverse_(denominationToken);
     if (!universeAddress || universeAddress == "0x") {
       throw new Error("Unable to create genesis universe. eth_call failed");
     }
-    await augurLite.createUniverse("TODO");
+    await augurLite.createUniverse(denominationToken);
     const universe = new Universe(
       this.connector,
       this.accountManager,

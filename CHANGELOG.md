@@ -9,8 +9,8 @@ As this repo is a fork of the Augur V1 contract code, available [here](https://g
 -   Deployment scripts are simplified with the removal of trading and reporting contracts.
 -   Network configuration are updated to accept a denomination token to be used in the creation of the genesis universe.
 -   Python tests are updated to account for removed functionality. When needed, market and universe tests were updated to use modified functionality (ie `doInitialReport` + `finalize` vs. `resolve`).
--   The Docker integration was removed to simplify the surface area of changes/testing.
--   The repo was published on NPM as `augur-lite` for easily importing ABIs and contract addresses.
+-   The Docker integration are removed to simplify the surface area of changes/testing.
+-   The repo will be published on NPM as `augur-lite` for easily importing ABIs and contract addresses.
 
 ## File-by-file smart contract changes
 
@@ -147,6 +147,9 @@ This is a list of contract modifications. If a contract name is not listed, it m
     -   `IMailbox.sol`
         -   `depositEther` method was removed.
     -   `IMarket.sol`
+        -   Because there is no concept of forks, fee windows/tokens or REP, the following methods were removed: `getFeeWindow`, `getForkingMarket`, `getReputationToken`, `isContainerForReportingParticipant`, `designatedReporterWasCorrect`, `designatedReporterShowed`, `finalizeFork`.
+        -   Because the reporting/dispute process is replaced by a single oracle, there is a single `resolve` method. `doInitialReport` and `finalize` methods are removed. Following this, these methods were removed: `derivePayoutDistributionHash`, `getWinningPayoutDistributionHash`, `getWinningPayoutNumerator`, `getFinalizationTime`, `isFinalized`.
+        -   Some of the above methods were replaced with: `getPayoutNumerator`, `getResolutionTime`, `getOracle`, `isResolved`
     -   `IUniverse.sol`
         -   Because there is no concept of disputes, forks, fee windows/tokens or REP, the following methods were removed: `fork`, `getParentUniverse`, `createChildUniverse`, `getChildUniverse`, `getReputationToken`, `getForkingMarket`, `getForkEndTime`, `getForkReputationGoal`, `getParentPayoutDistributionHash`, `getDisputeRoundDurationInSeconds`, `getOrCreateFeeWindowByTimestamp`, `getOrCreateCurrentFeeWindow`, `getOrCreateNextFeeWindow`, `getRepMarketCapInAttoeth`, `getTargetRepMarketCapInAttoeth`, `getOrCacheValidityBond`, `getOrCacheDesignatedReportStake`, `getOrCacheDesignatedReportNoShowBond`, `getOrCacheReportingFeeDivisor`, `getDisputeThresholdForFork`, `getInitialReportMinValue`, `calculateFloatingValue`, `getOrCacheMarketCreationCost`, `getCurrentFeeWindow`, `getOrCreateFeeWindowBefore`, `isParentOf`, `updateTentativeWinningChildUniverse`, `isContainerForFeeWindow`, `isContainerForReportingParticipant`, `isContainerForFeeToken`, `addMarketTo`, `removeMarketFrom`, `getWinningChildUniverse`, `isForking`
         -   Because we don't track universe-wide open interest, the following methods were removed: `decrementOpenInterest`, `decrementOpenInterestFromMarket`, `incrementOpenInterest`, `incrementOpenInterestFromMarket`, `getOpenInterestInAttoEth`.
@@ -157,6 +160,7 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   `CASH` usage is removed.
         -   `getAugur` method call was renamed to `getAugurLite`.
     -   `Market.sol`
+        -   TODO
     -   `Universe.sol`
         -   Besides the method deletions listed under `IUniverse.sol`, all the relevant contract state variables are removed. Remaining variables are `markets` and `denominationToken` (recent addition).
         -   `initialize` method was modified to accept `denominationToken` as a param.

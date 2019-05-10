@@ -14,6 +14,7 @@ export class DeployerConfiguration {
   public readonly createGenesisUniverse: boolean;
   public readonly useNormalTime: boolean;
   public readonly isProduction: boolean;
+  public readonly genesisDenominationTokenAddress: string | undefined;
 
   public constructor(
     contractInputRoot: string,
@@ -21,10 +22,12 @@ export class DeployerConfiguration {
     controllerAddress: string | undefined,
     createGenesisUniverse: boolean = true,
     isProduction: boolean = false,
-    useNormalTime: boolean = true
+    useNormalTime: boolean = true,
+    genesisDenominationTokenAddress: string | undefined
   ) {
     this.isProduction = isProduction;
     this.controllerAddress = controllerAddress;
+    this.genesisDenominationTokenAddress = genesisDenominationTokenAddress;
     this.createGenesisUniverse = createGenesisUniverse;
     this.useNormalTime = isProduction || useNormalTime;
 
@@ -60,6 +63,15 @@ export class DeployerConfiguration {
       typeof process.env.PRODUCTION === "string"
         ? process.env.PRODUCTION === "true"
         : isProduction;
+    const genesisDenominationTokenAddress =
+      process.env.GENESIS_DENOMINATION_TOKEN_ADDRESS;
+
+    if (
+      isProduction &&
+      createGenesisUniverse &&
+      typeof genesisDenominationTokenAddress === "undefined"
+    )
+      throw new Error("Genesis universe denomination token is not specified");
 
     return new DeployerConfiguration(
       contractInputRoot,
@@ -67,7 +79,8 @@ export class DeployerConfiguration {
       controllerAddress,
       createGenesisUniverse,
       isProduction,
-      useNormalTime
+      useNormalTime,
+      genesisDenominationTokenAddress
     );
   }
 
@@ -89,6 +102,15 @@ export class DeployerConfiguration {
       typeof process.env.PRODUCTION === "string"
         ? process.env.PRODUCTION === "true"
         : isProduction;
+    const genesisDenominationTokenAddress =
+      process.env.GENESIS_DENOMINATION_TOKEN_ADDRESS;
+
+    if (
+      isProduction &&
+      createGenesisUniverse &&
+      typeof genesisDenominationTokenAddress === "undefined"
+    )
+      throw new Error("Genesis universe denomination token is not specified");
 
     return new DeployerConfiguration(
       contractInputRoot,
@@ -96,7 +118,8 @@ export class DeployerConfiguration {
       controllerAddress,
       createGenesisUniverse,
       isProduction,
-      useNormalTime
+      useNormalTime,
+      genesisDenominationTokenAddress
     );
   }
 }

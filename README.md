@@ -23,15 +23,15 @@ This repo is a fork of the Augur V1 contract code, available [here](https://gith
 ## High-level Changes
 
 -   AugurLite removes all on-chain trading logic. AugurLite simply acts as an escrow layer, converting money into transferable share tokens and back.
-    -   As part of this change, all trading contracts except ClaimTradingProceeds and CompleteSets have been removed.
-    -   Because there is no on-chain trading, controller contracts like TradingEscapeHatch has been removed.
+    -   As part of this change, all trading contracts except `ClaimTradingProceeds` and `CompleteSets` have been removed.
+    -   Because there is no on-chain trading, controller contracts like `TradingEscapeHatch` has been removed.
 -   AugurLite is oracle agnostic. That means there is no reporting or dispute process at the base protocol. During market creation, an “oracle” address is specified. This “oracle” can resolve a market upon expiration, and the result is final. Without a reporting/dispute process:
     -   There’s no need for a native token (ie REP in Augur).
-    -   There’s no need for a concept like ReportingParticipants or DisputeCrowdsourcers. There is a single address (“oracle”), that can resolve markets (with a single “resolve” call), and all the resolution details are stored on the market.
+    -   There’s no need for a concept like `ReportingParticipants` or `DisputeCrowdsourcers`. There is a single address (“oracle”), that can resolve markets (with a single “resolve” call), and all the resolution details are stored on the market.
     -   There are no reporting fees. This means creating markets on AugurLite does not require validity or no-show bonds, and is much cheaper. Users only pay market creator fees that are deducted when users sell complete sets or claim trading proceeds.
     -   There are no fee windows or fee tokens. The single “oracle” address has the final say on the resolution of the market.
     -   There’s no concept of forking. There’s a single genesis universe which contains all markets and all share tokens. This universe keeps track of open interest across markets.
--   AugurLite markets can you use any ERC-20 compliant token as denomination tokens, not just CASH. Instead of Augur-wide specific, the denomination token is specified at the Universe level.
+-   AugurLite markets can you use any ERC-20 compliant token as denomination tokens, not just CASH. Unlike Augur, the denomination token is specified at the Universe level. What this means is, every market created within a Universe will have the same denomination token. Following this change, all the open interest tracking at the Universe level is removed.
 -   Augur contracts were written in Solidity version 0.4.20. AugurLite contracts are updated to use the most recent stable version of version 0.4.xx: 0.4.26.
 -   Following all the changes above, the deployment and testing scripts are much simpler and more streamlined.
 
@@ -56,12 +56,25 @@ python3 -m venv venv # Creates venv directory to install Python packages
 source venv/bin/activate # Activates the virtual environment
 ```
 
+You can switch away from your environment with:
+
+```bash
+deactivate
+```
+
 Once your Python setup is complete, install the dependencies:
 
 ```bash
 yarn install npx
 yarn
 pip install -r requirements.txt
+```
+
+If you're planning to deploy contracts, create an `.env` in the base directory. Depending on the network you're trying to deploy to, set the necessary environment variables. For more information on environment variables, you need, see `NetworkConfiguration` file. As an example, for a Kovan deployment, the following `.env` file should suffice:
+
+```
+KOVAN_ETHEREUM_HTTP=...
+KOVAN_PRIVATE_KEY=...
 ```
 
 Now, you should be able to compile contracts, build contract interfaces, and deploy contracts. Follow the instructions in the next section.
@@ -79,7 +92,7 @@ Solidity contract deployment is handled by `ContractDeployer.ts` and the wrapper
 
     -   source/libraries/CompilerConfiguration.ts
     -   source/libraries/DeployerConfiguration.ts
-    -   source/libraries/NetworkConfiguration.ts -
+    -   source/libraries/NetworkConfiguration.ts
 
 Overall, it's best to use helper functionality as defined in `package.json`. As an example, upon environment setup, you can deploy contracts to your desired network by:
 
@@ -99,5 +112,7 @@ Solidity smart contracts reside in `source/contracts`. Specifically:
 
 ## TODOs
 
--   Simplify the smart contract folder structure. `reporting`/`trading` distinction doesn't make sense anymore.
--   Simplify the deployment scripts. Possibly use `truffle`.
+-   Simplify the smart contract folder structure. `reporting`/`trading` distinction doesn't make sense anymore
+-   Simplify the deployment scripts. Possibly use `truffle`
+-   Deploy the repo to NPM as `augur-lite`
+-   Possibly remove denomination token from markets, and only use the universe denomination token. Currently, denomination token is redundantly stored.

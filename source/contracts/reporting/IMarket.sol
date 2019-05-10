@@ -21,6 +21,7 @@ contract IMarket is ITyped, IOwnable {
   function getNumTicks() public view returns (uint256);
   function getDenominationToken() public view returns (ERC20);
   function getShareToken(uint256 _outcome)  public view returns (IShareToken);
+  function getMarketCreatorSettlementFeeDivisor() public view returns (uint256);
   function getEndTime() public view returns (uint256);
   function getMarketCreatorMailbox() public view returns (IMailbox);
   function getPayoutNumerator(uint256 _outcome) public view returns (uint256);

@@ -216,17 +216,6 @@ export class TestFixture {
     return;
   }
 
-  public async derivePayoutDistributionHash(
-    market: Market,
-    payoutNumerators: Array<BN>,
-    invalid: boolean
-  ): Promise<string> {
-    return await market.derivePayoutDistributionHash_(
-      payoutNumerators,
-      invalid
-    );
-  }
-
   public async getNumSharesInMarket(market: Market, outcome: BN): Promise<BN> {
     const shareTokenAddress = await market.getShareToken_(outcome);
     const shareToken = new ShareToken(

@@ -10,9 +10,12 @@ export async function deployToNetworks(networks: Array<string>) {
   const networkConfigurations = networks.map(network =>
     NetworkConfiguration.create(network)
   );
-  const deployerConfiguration = DeployerConfiguration.create();
   for (let network of networkConfigurations) {
     // Deploy sequentially
+    const deployerConfiguration = DeployerConfiguration.create(
+      undefined,
+      network.isProduction
+    );
     await ContractDeployer.deployToNetwork(network, deployerConfiguration);
   }
 }
