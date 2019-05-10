@@ -1027,13 +1027,6 @@
             return <boolean>result[0];
         }
 
-        public derivePayoutDistributionHash_ = async(payoutNumerators: Array<BN>, invalid: boolean, options?: { sender?: string }): Promise<string> => {
-            options = options || {};
-            const abi: AbiFunction = {"constant":true,"inputs":[{"name":"_payoutNumerators","type":"uint256[]"},{"name":"_invalid","type":"bool"}],"name":"derivePayoutDistributionHash","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"};
-            const result = await this.localCall(abi, [payoutNumerators, invalid], options.sender);
-            return <string>result[0];
-        }
-
         public getNumberOfOutcomes_ = async( options?: { sender?: string }): Promise<BN> => {
             options = options || {};
             const abi: AbiFunction = {"constant":true,"inputs":[],"name":"getNumberOfOutcomes","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"};
@@ -1193,13 +1186,6 @@
             const abi: AbiFunction = {"constant":true,"inputs":[],"name":"isResolved","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"};
             const result = await this.localCall(abi, [], options.sender);
             return <boolean>result[0];
-        }
-
-        public getPayoutDistributionHash_ = async( options?: { sender?: string }): Promise<string> => {
-            options = options || {};
-            const abi: AbiFunction = {"constant":true,"inputs":[],"name":"getPayoutDistributionHash","outputs":[{"name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"};
-            const result = await this.localCall(abi, [], options.sender);
-            return <string>result[0];
         }
 
         public getDenominationToken_ = async( options?: { sender?: string }): Promise<string> => {

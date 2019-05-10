@@ -1,6 +1,6 @@
 # augur-lite
 
-**_This repo is a fork of the Augur V1 contract code, available [here](https://github.com/AugurProject/augur-core)._**
+This repo is a fork of the Augur V1 contract code, available [here](https://github.com/AugurProject/augur-core).
 
 ## Contracts
 
@@ -43,6 +43,8 @@ While the origin Augur V1 codebase is massive, the main changes were made to fol
 -   source/contracts/trading/ClaimTradingProceeds.sol
 -   source/contracts/trading/CompleteSets.sol
 
+If you're looking for a more in-depth list of changes, please check the [CHANGELOG](https://github.com/veilco/augur-lite/CHANGELOG.md) filed.
+
 ## Installation
 
 You need system-wide installations of Python 3.7.3, Node.js 10.12, and [Solidity 0.4.26](https://github.com/ethereum/solidity/releases/tag/v0.4.26). On MacOS, you also need to use [venv](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) for package management.
@@ -62,12 +64,7 @@ yarn
 pip install -r requirements.txt
 ```
 
-Now, you should be able to compile contracts, build contract interfaces, and deploy contracts with:
-
-```bash
-yarn run build # Compiles contracts and builds contract interfaces
-yarn run deploy:kovan # Deploys contracts to Kovan
-```
+Now, you should be able to compile contracts, build contract interfaces, and deploy contracts. Follow the instructions in the next section.
 
 ## Deployment
 
@@ -84,20 +81,23 @@ Solidity contract deployment is handled by `ContractDeployer.ts` and the wrapper
     -   source/libraries/DeployerConfiguration.ts
     -   source/libraries/NetworkConfiguration.ts -
 
--   Wrapper programs
-    -   source/deployment/compileAndDeploy.ts - Compiles and Uploads contracts in one step. Useful for integration testing.
-    -   source/deployment/compiledContracts.ts - Compile contract source (from source/contracts) and output contracts.json and abi.json. Outputs to output/contracts or CONTRACTS_OUTPUT_ROOT if defined.
-    -   source/deployment/deployNetworks.ts - Application that can upload / upgrade all contracts, reads contracts from CONTRACTS_OUTPUT_ROOT, and uses a named network configuration to connect to an ethereum node. The resulting contract addresses are stored in output/contracts or ARTIFACT_OUTPUT_ROOT if defined.
+Overall, it's best to use helper functionality as defined in `package.json`. As an example, upon environment setup, you can deploy contracts to your desired network by:
 
-## Tests
+```bash
+yarn run build # Compiles contracts and builds contract interfaces
+yarn run deploy:kovan # Deploys contracts to Kovan
+```
 
-TODO
+## Smart contract organization
 
-## Source code organization
+Solidity smart contracts reside in `source/contracts`. Specifically:
 
-Augur's smart contracts are organized into four folders:
+-   `source/contracts/factories`: Constructors for universes, markets, share tokens etc.
+-   `source/contracts/libraries`: Libraries (ie SafeMath) or utility contracts (ie MarketValidator) used elsewhere in the source code.
+-   `source/contracts/reporting`: Contracts for managing universes and creating/managing markets.
+-   `source/contracts/trading`: Contracts to issue and close out complete sets of shares, and for traders to claim proceeds after markets are resolved.
 
--   `source/contracts/factories`: Constructors for universes, markets etc.
--   `source/contracts/libraries`: Data structures used elsewhere in the source code.
--   `source/contracts/reporting`: Creation and manipulation of universes, and markets.
--   `source/contracts/trading`: Functions to issue and close out complete sets of shares, and for traders to claim proceeds after markets are resolved.
+## TODOs
+
+-   Simplify the smart contract folder structure. `reporting`/`trading` distinction doesn't make sense anymore.
+-   Simplify the deployment scripts. Possibly use `truffle`.

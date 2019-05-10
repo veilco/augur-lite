@@ -35,7 +35,6 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   uint256 private feeDivisor;
   uint256 private endTime;
   uint256 private numOutcomes;
-  bytes32 private payoutDistributionHash;
   uint256 private resolutionTime;
   address private oracle;
   bool private invalid;
@@ -86,10 +85,8 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     require(getResolutionTime() == 0);
     require(_timestamp > endTime);
     require(msg.sender == getOracle());
-    require(payoutDistributionHash == bytes32(0));
 
     resolutionTime = _timestamp;
-    payoutDistributionHash = derivePayoutDistributionHash(_payoutNumerators, _invalid);
     payoutNumerators = _payoutNumerators;
     invalid = _invalid;
     controller.getAugurLite().logMarketResolved(universe);
@@ -118,12 +115,8 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     return "Market";
   }
 
-  function getPayoutDistributionHash() public view returns (bytes32) {
-    return payoutDistributionHash;
-  }
-
   function isResolved() public view returns (bool) {
-    return payoutDistributionHash != bytes32(0);
+    return getResolutionTime() != 0;
   }
 
   function getEndTime() public view returns (uint256) {
@@ -170,24 +163,6 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   function getShareToken(uint256 _outcome) public view returns (IShareToken) {
     return shareTokens[_outcome];
-  }
-
-  function derivePayoutDistributionHash(uint256[] _payoutNumerators, bool _invalid) public view returns (bytes32) {
-    uint256 _sum = 0;
-    uint256 _previousValue = _payoutNumerators[0];
-    require(_payoutNumerators.length == numOutcomes);
-    for (uint256 i = 0; i < _payoutNumerators.length; i++) {
-      uint256 _value = _payoutNumerators[i];
-      _sum = _sum.add(_value);
-      require(!_invalid || _value == _previousValue);
-      _previousValue = _value;
-    }
-    if (_invalid) {
-      require(_previousValue == numTicks / numOutcomes);
-    } else {
-      require(_sum == numTicks);
-    }
-    return keccak256(abi.encodePacked(_payoutNumerators, _invalid));
   }
 
   function isContainerForShareToken(IShareToken _shadyShareToken) public view returns (bool) {
