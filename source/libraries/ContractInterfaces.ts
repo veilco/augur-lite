@@ -1055,6 +1055,13 @@
             return <boolean>result[0];
         }
 
+        public verifyResolutionInformation_ = async(payoutNumerators: Array<BN>, invalid: boolean, options?: { sender?: string }): Promise<boolean> => {
+            options = options || {};
+            const abi: AbiFunction = {"constant":true,"inputs":[{"name":"_payoutNumerators","type":"uint256[]"},{"name":"_invalid","type":"bool"}],"name":"verifyResolutionInformation","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"};
+            const result = await this.localCall(abi, [payoutNumerators, invalid], options.sender);
+            return <boolean>result[0];
+        }
+
         public resolve = async(payoutNumerators: Array<BN>, invalid: boolean, options?: { sender?: string, gasPrice?: BN }): Promise<void> => {
             options = options || {};
             const abi: AbiFunction = {"constant":false,"inputs":[{"name":"_payoutNumerators","type":"uint256[]"},{"name":"_invalid","type":"bool"}],"name":"resolve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"};

@@ -85,6 +85,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     require(getResolutionTime() == 0);
     require(_timestamp > endTime);
     require(msg.sender == getOracle());
+    require(verifyResolutionInformation(_payoutNumerators, _invalid));
 
     resolutionTime = _timestamp;
     payoutNumerators = _payoutNumerators;
@@ -171,6 +172,24 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   function onTransferOwnership(address _owner, address _newOwner) internal returns (bool) {
     controller.getAugurLite().logMarketTransferred(getUniverse(), _owner, _newOwner);
+    return true;
+  }
+
+  function verifyResolutionInformation(uint256[] _payoutNumerators, bool _invalid) public view returns (bool) {
+    uint256 _sum = 0;
+    uint256 _previousValue = _payoutNumerators[0];
+    require(_payoutNumerators.length == numOutcomes);
+    for (uint256 i = 0; i < _payoutNumerators.length; i++) {
+      uint256 _value = _payoutNumerators[i];
+      _sum = _sum.add(_value);
+      require(!_invalid || _value == _previousValue);
+      _previousValue = _value;
+    }
+    if (_invalid) {
+      require(_previousValue == numTicks / numOutcomes);
+    } else {
+      require(_sum == numTicks);
+    }
     return true;
   }
 

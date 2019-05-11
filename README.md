@@ -116,3 +116,4 @@ Solidity smart contracts reside in `source/contracts`. Specifically:
 -   Simplify the deployment scripts. Possibly use `truffle`
 -   Deploy the repo to NPM as `augur-lite`
 -   Possibly remove denomination token from markets, and only use the universe denomination token. Currently, denomination token is redundantly stored.
+-   Update tests to take new Universe initialization into account

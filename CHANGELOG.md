@@ -160,6 +160,7 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   `CASH` usage is removed.
         -   `getAugur` method call was renamed to `getAugurLite`.
     -   `Market.sol`
+        -   Because the reporting/dispute process is replaced by a single oracle, there is a single `resolve` method. `doInitialReport` and `finalize` methods are removed. Following this, the functionality of `derivePayoutDistributionHash` as a way to verify resolution information is kept, but the `payoutDistributionHash` is removed.
         -   TODO
     -   `Universe.sol`
         -   Besides the method deletions listed under `IUniverse.sol`, all the relevant contract state variables are removed. Remaining variables are `markets` and `denominationToken` (recent addition).
