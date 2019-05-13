@@ -38,14 +38,6 @@ contract SafeMathUint256Tester {
     return SafeMathUint256.getUint256Max();
   }
 
-  function fxpMul(uint256 _a, uint256 _b, uint256 _base) public view returns (uint256) {
-    return SafeMathUint256.fxpMul(_a, _b, _base);
-  }
-
-  function fxpDiv(uint256 _a, uint256 _b, uint256 _base) public view returns (uint256) {
-    return SafeMathUint256.fxpDiv(_a, _b, _base);
-  }
-
   function isMultipleOf(uint256 _a, uint256 _b) public view returns (bool) {
     return SafeMathUint256.isMultipleOf(_a, _b);
   }

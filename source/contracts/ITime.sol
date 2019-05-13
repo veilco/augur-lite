@@ -1,7 +1,6 @@
 pragma solidity 0.4.26;
 
 import 'Controlled.sol';
-import 'libraries/Initializable.sol';
 import 'libraries/ITyped.sol';
 
 

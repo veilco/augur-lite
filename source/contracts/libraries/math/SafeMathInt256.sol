@@ -55,13 +55,4 @@ library SafeMathInt256 {
   function getInt256Max() internal pure returns (int256) {
     return INT256_MAX;
   }
-
-  // Float [fixed point] Operations
-  function fxpMul(int256 a, int256 b, int256 base) internal pure returns (int256) {
-    return div(mul(a, b), base);
-  }
-
-  function fxpDiv(int256 a, int256 b, int256 base) internal pure returns (int256) {
-    return div(mul(a, base), b);
-  }
 }

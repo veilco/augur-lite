@@ -134,27 +134,3 @@ def test_getInt256Max(testerContractsFixture):
     (10**18, 0, 10**18, 0),
     (10**18, 1, 10**18, 1)
 ])
-def test_fxpMul(a, b, base, expectedResult, testerContractsFixture):
-    safeMathUint256Tester = testerContractsFixture.contracts['SafeMathInt256Tester']
-    if (expectedResult == "TransactionFailed"):
-        with raises(TransactionFailed):
-            safeMathUint256Tester.fxpMul(a, b, base)
-    else:
-        assert safeMathUint256Tester.fxpMul(a, b, base) == expectedResult
-
-@mark.parametrize('a, b, base, expectedResult', [
-    (-2**(255), -2**(255), 10**18, "TransactionFailed"),
-    (-2**(255), (2**(255) - 1), 10**18, "TransactionFailed"),
-    ((2**(255) - 1), (2**(255) - 1), 10**18, "TransactionFailed"),
-    (-1, -1, 10**18, 10**18),
-    (-1, 1, 10**18, -10**18),
-    (1, 0, 10**18, "TransactionFailed"),
-    (1, 1, 10**18, 10**18)
-])
-def test_fxpDiv(a, b, base, expectedResult, testerContractsFixture):
-    safeMathUint256Tester = testerContractsFixture.contracts['SafeMathInt256Tester']
-    if (expectedResult == "TransactionFailed"):
-        with raises(TransactionFailed):
-            safeMathUint256Tester.fxpDiv(a, b, base)
-    else:
-        assert safeMathUint256Tester.fxpDiv(a, b, base) == expectedResult

@@ -119,6 +119,8 @@ This is a list of contract modifications. If a contract name is not listed, it m
     -   `IController.sol`
         -   It was updated to use the new `IAugurLite` interface.
         -   `getAugur` method was renamed to `getAugurLite`.
+    -   ITime.sol
+        -   Removed Initializable import, as it's not used.
     -   `TimeControlled.sol`
         -   Per the compiler update, the contract was updated to use `constructor`.
         -   Removed the concept of the foundation network. This led to the removal of the `ContractExists` library.
@@ -137,6 +139,11 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   `getAugur` method call was renamed to `getAugurLite`.
     -   `Ownable.sol`
         -   Per the compiler update, the contract was updated to use `constructor`.
+    -   `math/SafeMathInt256.sol`
+        -   Removed `fxpMul` and `fxpDiv` methods
+    -   `math/SafeMathUint256.sol`
+        -   Removed `fxpMul` and `fxpDiv` methods
+    -   `math/SafeMathUint256.sol`
     -   `token/BasicToken.sol`
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
     -   `token/StandardToken.sol`
