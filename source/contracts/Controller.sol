@@ -26,7 +26,7 @@ contract Controller is IController {
 
   constructor() public {
     owner = msg.sender;
-    whitelist[msg.sender] = true;
+    addToWhitelist(msg.sender);
   }
 
   modifier onlyOwnerCaller {
