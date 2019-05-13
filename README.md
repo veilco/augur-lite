@@ -1,4 +1,4 @@
-# augur-lite
+<img src="https://augurlite.com/static/logo.png" width="300px" />
 
 This repo is a fork of the Augur V1 contract code, available [here](https://github.com/AugurProject/augur-core).
 
@@ -19,6 +19,15 @@ This repo is a fork of the Augur V1 contract code, available [here](https://gith
 **Mailbox:** This contract is deployed per market and is owned by the market creator. It collects the market creator fees, and it's ownership can be transferred.
 
 **Factory Contracts:** MailboxFactory, MarketFactory, ShareTokenFactory, UniverseFactory. VeilAugur contract uses UniverseFactory to create the genesis universe. Universe contract uses MarketFactory to create new markets. Upon deployment, market contracts use MailboxFactory to create the market creator mailbox, and ShareTokenFactory to create outcome tokens.
+
+## Comparison
+|                       | <img src="https://statrader.com/wp-content/uploads/2018/05/Augur-Logo.png" height="100px" />|<img src="https://augurlite.com/static/logo.png" height="100px" />|
+|-----------------------|----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Market creation**       | ✅ Anyone can create a market, but they must deposit ETH and REP to do so.                                               | ✅ Anyone can create a market, and there is no fee or deposit for doing so.                                                                                                           |
+| **Complete sets**         | ✅ Complete sets of ERC20 outcome tokens can be created by escrowing ETH. Complete sets can also be settled at any time. | ✅ Complete sets of ERC20 outcome tokens can be created by escrowing whatever the denomination token of the universe is (default Dai). Complete sets can also be settled at any time. |
+| **Trading and liquidity** | ✅ Orders are created and maintained on-chain. A custom order matching engine matches and executes trades.               | 🚫 No trading happens through the protocol. The ERC20 outcome tokens should be traded on other protocols like 0x or Hydro. Relayers like Veil, BlitzPredict, or Flux can provide UX.   |
+| **Oracle**                | ✅ Users stake REP tokens on a weekly cadence to determine the outcome of markets.                                       | 🚫 No oracle is built into the protocol. Instead, markets have a resolver which can reference any oracle—an Augur market, Chainlink feed, or any arbitrary smart contract state.       |
+| **Settlement**            | ✅ Once the oracle report is finalized, users can redeem their outcome tokens for their portion of the escrowed ETH.     | ✅ Once the market is resolved, users can redeem their outcome tokens for their portion of the escrowed currency.                                                                     |
 
 ## High-level Changes
 
