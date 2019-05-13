@@ -141,8 +141,10 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   Per the compiler update, the contract was updated to use `constructor`.
     -   `math/SafeMathInt256.sol`
         -   Removed `fxpMul` and `fxpDiv` methods
+        -   `div()` method uses `require` rather than `assert` to save gas in case of a failure
     -   `math/SafeMathUint256.sol`
         -   Removed `fxpMul` and `fxpDiv` methods
+        -   `div()` method uses `require` rather than `assert` to save gas in case of a failure
     -   `math/SafeMathUint256.sol`
     -   `token/BasicToken.sol`
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
