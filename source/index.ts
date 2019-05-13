@@ -1,5 +1,4 @@
-export { NetworkConfiguration } from "./libraries/NetworkConfiguration";
-export { DeployerConfiguration } from "./libraries/DeployerConfiguration";
-export { ContractDeployer } from "./libraries/ContractDeployer";
-
-export const abi = require("./contracts/abi");
+const abi = require("./contracts/abi");
+const addresses = require("./contracts/addresses");
+module.exports = abi;
+module.exports.addresses = addresses;

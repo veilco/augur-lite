@@ -1,5 +1,5 @@
 {
-  "name": "augur-core",
+  "name": "augur-lite",
   "version": "0.0.1",
   "description": "Core VeilAugur contracts and deployment process",
   "author": "Veil <hello@veil.co>",
@@ -7,12 +7,16 @@
   "main": "output/index.js",
   "types": "output/index.d.ts",
   "module": "output/index.js",
-  "browser": "output/browser.js",
   "license": "GPL-3.0",
   "directories": {
     "src": "source",
     "test": "test"
   },
+  "files": [
+    "output/contracts/*",
+    "output/index.js",
+    "output/index.d.ts"
+  ],
   "scripts": {
     "lint": "npx solium --dir source --reporter=gcc",
     "build:source": "npx tsc",
