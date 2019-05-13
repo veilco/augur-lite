@@ -65,7 +65,7 @@ deactivate
 Once your Python setup is complete, install the dependencies:
 
 ```bash
-yarn install npx
+yarn add npx
 yarn
 pip install -r requirements.txt
 ```
@@ -113,7 +113,5 @@ Solidity smart contracts reside in `source/contracts`. Specifically:
 ## TODOs
 
 -   Simplify the smart contract folder structure. `reporting`/`trading` distinction doesn't make sense anymore
--   Simplify the deployment scripts. Possibly use `truffle`
--   Deploy the repo to NPM as `augur-lite`
 -   Possibly remove denomination token from markets, and only use the universe denomination token. Currently, denomination token is redundantly stored.
 -   Update tests to take new Universe initialization into account
