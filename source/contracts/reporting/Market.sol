@@ -82,7 +82,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   function resolve(uint256[] _payoutNumerators, bool _invalid) public onlyInGoodTimes returns (bool) {
     uint256 _timestamp = controller.getTimestamp();
-    require(getResolutionTime() == 0);
+    require(!isResolved());
     require(_timestamp > endTime);
     require(msg.sender == getOracle());
     require(verifyResolutionInformation(_payoutNumerators, _invalid));
