@@ -152,6 +152,7 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
     -   `token/VariableSupplyToken.sol`
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
+        -   `Mint` and `Burn` events are replaced with `Transfer` events per the Zeppelin implementation.
 -   reporting/
     -   `IMailbox.sol`
         -   `depositEther` method was removed.
