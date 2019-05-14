@@ -1,8 +1,8 @@
 pragma solidity 0.4.26;
 
-import 'libraries/Delegator.sol';
-import 'reporting/IMarket.sol';
+import 'IMarket.sol';
 import 'IController.sol';
+import 'libraries/Delegator.sol';
 
 
 contract ShareTokenFactory {

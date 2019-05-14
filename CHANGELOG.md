@@ -34,15 +34,16 @@ While the origin Augur V1 codebase is massive, the main changes were made to fol
 -   Python tests are updated to account for removed functionality. When needed, market and universe tests were updated to use modified functionality (ie `doInitialReport` + `finalize` vs. `resolve`).
 -   The Docker integration are removed to simplify the surface area of changes/testing.
 -   The repo will be published on NPM as `augur-lite` for easily importing ABIs and contract addresses.
+-   Folder structure is flattened to bring `reporting/` and `trading/` contracts to the root level.
+-   Contract `require()` statements are updated to have explicit error messages.
 
 ## File-by-file smart contract changes
 
 Solidity smart contracts reside in `source/contracts`. Specifically:
 
+-   `source/contracts/`: Contracts for managing universes, creating/managing markets, issuing and closing out complete sets of shares, and for traders to claim proceeds after markets are resolved
 -   `source/contracts/factories`: Constructors for universes, markets, share tokens etc.
 -   `source/contracts/libraries`: Libraries (ie SafeMath) or utility contracts (ie MarketValidator) used elsewhere in the source code.
--   `source/contracts/reporting`: Contracts for managing universes and creating/managing markets.
--   `source/contracts/trading`: Contracts to issue and close out complete sets of shares, and for traders to claim proceeds after markets are resolved.
 
 ### Contract modifications
 
@@ -65,15 +66,8 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   This was originally named `IAugur.sol`.
         -   `logMarketFinalized` method was renamed to `logMarketResolved`.
         -   Methods that were deleted from `AugurLite.sol` were removed.
--   factories/
-    -   `MarketFactory.sol`
-        -   Changed `ICash` to generic `ERC20` library.
-        -   Removed the requirement for the reputation token transfer as it isn't used.
-        -   `designatedReporterAddress` is renamed to `oracle`.
-    -   `UniverseFactory.sol`
-        -   `createUniverse` method now only accepts `denominationToken` as an argument. The concepts of `parentUniverse` and `parentPayoutDistributionHash` are removed, as there's no concept of forking or children-parent universes.
--   reporting/
     -   `IMarket.sol`
+        -   Originally located in `source/contract/reporting/IMarket.sol`
         -   Because there is no concept of forks, fee windows/tokens or REP, the following methods were removed: `getFeeWindow`, `getForkingMarket`, `getReputationToken`, `isContainerForReportingParticipant`, `designatedReporterWasCorrect`, `designatedReporterShowed`, `finalizeFork`.
         -   Because the reporting/dispute process is replaced by a single oracle, there is a single `resolve` method. `doInitialReport` and `finalize` methods are removed. Following this, these methods were removed: `derivePayoutDistributionHash`, `getWinningPayoutDistributionHash`, `getWinningPayoutNumerator`, `getFinalizationTime`, `isFinalized`.
         -   Some of the above methods were replaced with: `getPayoutNumerator`, `getResolutionTime`, `getOracle`, `isResolved`
@@ -83,24 +77,34 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   `getDenominationToken` was added, as now the universe stores the denomination token.
         -   `initialize` method was modified to accept `denominationToken` as a param.
     -   `Market.sol`
+        -   Originally located in `source/contract/reporting/Market.sol`
         -   Because the reporting/dispute process is replaced by a single oracle, there is a single `resolve` method. `doInitialReport` and `finalize` methods are removed. Following this, the functionality of `derivePayoutDistributionHash` as a way to verify resolution information is kept, but the `payoutDistributionHash` is removed.
         -   TODO
     -   `Universe.sol`
+        -   Originally located in `source/contract/reporting/Universe.sol`
         -   Besides the method deletions listed under `IUniverse.sol`, all the relevant contract state variables are removed. Remaining variables are `markets` and `denominationToken` (recent addition).
         -   `initialize` method was modified to accept `denominationToken` as a param.
         -   `getAugur` method call was renamed to `getAugurLite`.
         -   Market creation doesn't involve reputation token transfer, as there is no reputation token.
--   trading/
     -   `ClaimTradingProceeds.sol`
+        -   Originally located in `source/contract/trading/ClaimTradingProceeds.sol`
         -   `IClaimingTradingProceeds.sol` import was removed as it was empty.
         -   Changed `ICash` to generic `ERC20` library.
         -   Because there are no reporter fees, `calculateReporterFee` is removed, and `divideUpWinnings` only calls `calculateCreatorFee` for fees.
         -   `logTradingProceedsClaimed` uses the balance of the sender for the market denomination token, instead of their ETH balance.
     -   `CompleteSets.sol`
+        -   Originally located in `source/contract/trading/CompleteSets.sol`
         -   `getAugur` method call was renamed to `getAugurLite`.
         -   `publicBuyCompleteSetsWithCash` and `publicSellCompleteSetsWithCash` were removed as there is no concept of `CASH`.
         -   `buyCompleteSets` was updated to not increment universe open interest, as that is not tracked any more.
         -   `sellCompleteSets` doesn't deal with `reporterFee`, and only takes `creatorFee` into account. It returns a success boolean, instead of `creatorFee` and `reporterFee`.
+-   factories/
+    -   `MarketFactory.sol`
+        -   Changed `ICash` to generic `ERC20` library.
+        -   Removed the requirement for the reputation token transfer as it isn't used.
+        -   `designatedReporterAddress` is renamed to `oracle`.
+    -   `UniverseFactory.sol`
+        -   `createUniverse` method now only accepts `denominationToken` as an argument. The concepts of `parentUniverse` and `parentPayoutDistributionHash` are removed, as there's no concept of forking or children-parent universes.
 
 #### Low-severity changes
 
@@ -118,6 +122,24 @@ This is a list of contract modifications. If a contract name is not listed, it m
     -   `TimeControlled.sol`
         -   Per the compiler update, the contract was updated to use `constructor`.
         -   Removed the concept of the foundation network. This led to the removal of the `ContractExists` library.
+        -   `getAugur` method call was renamed to `getAugurLite`.
+    -   `IMailbox.sol`
+        -   Originally located in `source/contracts/reporting/IMailbox.sol`
+        -   `depositEther` method was removed.
+    -   `Mailbox.sol`
+        -   Originally located in `source/contracts/reporting/Mailbox.sol`
+        -   `depositEther` and `withdrawEther` methods were removed.
+        -   `CASH` usage is removed.
+        -   `getAugur` method call was renamed to `getAugurLite`.
+    -   `ICompleteSets.sol`
+        -   Originally located in `source/contracts/trading/ICompleteSets.sol`
+        -   `sellCompleteSets` returns a success boolean, instead of `creatorFee` and `reporterFee`.
+    -   `IShareToken.sol`
+        -   Originally located in `source/contracts/trading/IShareToken.sol`
+        -   `trustedOrderTransfer`, `trustedFillOrderTransfer`, and `trustedCancelOrderTransfer` methods were removed.
+    -   `ShareToken.sol`
+        -   Originally located in `source/contracts/trading/ShareToken.sol`
+        -   `trustedOrderTransfer`, `trustedFillOrderTransfer`, and `trustedCancelOrderTransfer` methods were removed.
         -   `getAugur` method call was renamed to `getAugurLite`.
 -   libraries/
     -   `Delegator.sol`
@@ -139,21 +161,6 @@ This is a list of contract modifications. If a contract name is not listed, it m
     -   `token/VariableSupplyToken.sol`
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
         -   `Mint` and `Burn` events are replaced with `Transfer` events per the Zeppelin implementation.
--   reporting/
-    -   `IMailbox.sol`
-        -   `depositEther` method was removed.
-    -   `Mailbox.sol`
-        -   `depositEther` and `withdrawEther` methods were removed.
-        -   `CASH` usage is removed.
-        -   `getAugur` method call was renamed to `getAugurLite`.
--   trading/
-    -   `ICompleteSets.sol`
-        -   `sellCompleteSets` returns a success boolean, instead of `creatorFee` and `reporterFee`.
-    -   `IShareToken.sol`
-        -   `trustedOrderTransfer`, `trustedFillOrderTransfer`, and `trustedCancelOrderTransfer` methods were removed.
-    -   `ShareToken.sol`
-        -   `trustedOrderTransfer`, `trustedFillOrderTransfer`, and `trustedCancelOrderTransfer` methods were removed.
-        -   `getAugur` method call was renamed to `getAugurLite`.
 
 ### Contract removals
 

@@ -2,12 +2,12 @@ pragma solidity 0.4.26;
 
 import 'Controlled.sol';
 import 'IAugurLite.sol';
+import 'IUniverse.sol';
+import 'IMarket.sol';
+import 'IMailbox.sol';
+import 'IShareToken.sol';
 import 'libraries/token/ERC20.sol';
 import 'factories/UniverseFactory.sol';
-import 'reporting/IUniverse.sol';
-import 'reporting/IMarket.sol';
-import 'reporting/IMailbox.sol';
-import 'trading/IShareToken.sol';
 
 
 // Centralized approval authority and event emissions

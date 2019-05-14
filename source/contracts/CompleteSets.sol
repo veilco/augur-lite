@@ -1,13 +1,13 @@
 pragma solidity 0.4.26;
 
-import 'trading/ICompleteSets.sol';
+import 'ICompleteSets.sol';
 import 'IAugurLite.sol';
 import 'Controlled.sol';
+import 'IMarket.sol';
 import 'libraries/ReentrancyGuard.sol';
 import 'libraries/math/SafeMathUint256.sol';
 import 'libraries/MarketValidator.sol';
 import 'libraries/token/ERC20.sol';
-import 'reporting/IMarket.sol';
 
 
 contract CompleteSets is Controlled, ReentrancyGuard, MarketValidator, ICompleteSets {

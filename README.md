@@ -3,56 +3,65 @@
 **Welcome to AugurLite!** AugurLite is a decentralized prediction market protocol, built on Ethereum. The protocol is a fork of Augur v1, whose code is available [here](https://github.com/AugurProject/augur-core). AugurLite shares much of the same functionality as Augur but is designed to be more modular—supporting multiple denomination tokens and oracle systems.
 
 ## Introduction
+
 AugurLite is a protocol for creating and resolving prediction market contracts on Ethereum. Each prediction market is a smart contract with a chosen denomination token, such as [Dai](https://makerdao.com/dai/). Denomination tokens can be escrowed in the market in exchange for a set of outcome tokens, each of which is an [ERC-20 token](https://en.wikipedia.org/wiki/ERC-20). The outcome tokens can be traded or exchanged on platforms like [Veil](https://veil.co), and ultimately redeemed for a portion of the escrowed denomination tokens.
 
 ## AugurLite Contracts
+
 The best way of explaining the AugurLite concepts may be discussing each smart contract that is part of the protocol. Here is a breakdown.
 
 #### AugurLite [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/AugurLite.sol)
+
 This is the protocol's master contract. It is responsible for logging protocol-wide events, controlling transfers of denomination tokens, and creating the genesis universe using the UniverseFactory. This contract is a fork of Augur's [main contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/Augur.sol).
 
 #### Universe [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/reporting/Universe.sol)
+
 Conceptually, a universe is a container for markets that use the same denomination token. Each universe is created by the AugurLite contract. New markets (scalar, yesno, categorical) are created by calling this contract that in turn uses MarketFactory contracts. The Universe contract stores the denomination token that is used for all markets created in the universe. Unlike [Augur's equivalent](https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/Universe.sol), this contract doesn't have any concept of forking, fee windows, reporting fees, open interest, or REP, because AugurLite does not come with an oracle out-of-the-box.
 
 #### Market [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/reporting/Market.sol)
+
 A market is effectively a question about the future. Examples might be "Will Kamala Harris win the 2020 Democratic presidential nomination?" or "What will be the price of Bitcoin (BTC) in USD at 5pm PDT on Friday, May 17, 2019?" Markets come in three types: yes/no, categorical, and scalar.
 
 AugurLite markets have an `oracle` field which specifies which Ethereum address can resolve the market, meaning specify how much each outcome is actually worth on expiration. All markets in Augur by default use the Augur oracle for resolution, and therefore users are required to deposit ETH and REP when creating a market. AugurLite is oracle-agnostic, so markets could be resolved by referencing the result of an Augur market or some other piece of Ethereum state. Therefore, users do not have to pay additional ETH, REP, or any other currency when creating markets.
 
 This contract shares many of the same fields as Augur's [Market contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/Market.sol). It's worth noting that the initial reporter and reporting participants concepts have been removed because they relate to the Augur oracle, which is irrelevant here. Markets are resolved by calling one `resolve` method. There is no finalization process as there is on Augur.
 
-Upon market creation, a market creator mailbox is created through the MailboxFactory, and share tokens are created through the ShareTokenFactory. We'll talk more about those in their own sections below. Markets also have a market creator fee that is charged when shares are redeemed. 
+Upon market creation, a market creator mailbox is created through the MailboxFactory, and share tokens are created through the ShareTokenFactory. We'll talk more about those in their own sections below. Markets also have a market creator fee that is charged when shares are redeemed.
 
 #### ShareToken [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/trading/ShareToken.sol)
+
 These are mintable, burnable ERC-20 tokens that represent outcomes in markets. They are created by ShareTokenFactory. A share token should be valued between 0 and 1 of the relevant denomination token. For instance, if you own a "YES" share token in a market denominated in Dai about an event that ends up happening, that share token will be worth 1 DAI upon resolution. Similarly, the "NO" share token in that market will be worth 0 DAI. There is an equivalent [ShareToken contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/trading/ShareToken.sol) in Augur.
 
 #### CompleteSets [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/trading/CompleteSets.sol)
+
 A complete set is a basket of all share tokens in a market. For instance, 1 complete set in a yes/no market would be 1 "YES" share token and 1 "NO" share token. Complete sets have the property of always being worth denomination token, because regardless of the outcome of the market, the sum of the values of the share tokens will be 1. This contract lets uesrs buy and sell complete sets in a given market. A user can buy a complete set by escrowing 1 denomination token in the market in exchange for 1 complete set. And a user can sell a complete set by exchanging the set for 1 denomination token (minus the market creator fee) that had been escrowed in the market. There is an equivalent [CompleteSets contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/trading/CompleteSets.sol) in Augur.
 
 #### ClaimTradingProceeds [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/trading/ClaimTradingProceeds.sol)
+
 This contract lets users exchange their share tokens for denomination tokens once a market resolves. It is equivalent to the [ClaimTradingProceeds contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/trading/ClaimTradingProceeds.sol) in Augur.
 
 You will notice that all other trading-related contracts from Augur do not exist in AugurLite. That is because AugurLite defers trading to other off-chain exchange protocols (like [0x](https://0x.org/) or [Hydro](https://hydroprotocol.io/)) and encourages users to trade through off-chain relayers (like [Veil](https://veil.co/), [BlitzPredict](https://www.blitzpredict.io/), or [Flux](https://flux.market/)) for better performance.
 
 #### Mailbox [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/reporting/Mailbox.sol)
+
 This contract is deployed per market and is owned by the market creator. It collects the market creator fees, and it's ownership can be transferred. There is an equivalent [Mailbox contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/reporting/Mailbox.sol) in Augur.
 
 #### Factory Contracts: MailboxFactory, MarketFactory, ShareTokenFactory, UniverseFactory
+
 AugurLite uses UniverseFactory to create the genesis universe. The Universe contract uses MarketFactory to create new markets. Upon deployment, market contracts use MailboxFactory to create the market creator mailbox, and ShareTokenFactory to create outcome tokens.
 
 ## Comparison
-Here is a table that highlights the main differences between Augur and AugurLite. 
 
-|                       | <img src="https://statrader.com/wp-content/uploads/2018/05/Augur-Logo.png" height="100px" />|<img src="https://augurlite.com/static/logo.png" height="100px" />|
-|-----------------------|----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+Here is a table that highlights the main differences between Augur and AugurLite.
+
+|                           | <img src="https://statrader.com/wp-content/uploads/2018/05/Augur-Logo.png" height="100px" />                             | <img src="https://augurlite.com/static/logo.png" height="100px" />                                                                                                                    |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Market creation**       | ✅ Anyone can create a market, but they must deposit ETH and REP to do so.                                               | ✅ Anyone can create a market, and there is no fee or deposit for doing so.                                                                                                           |
-| **Denomination tokens**   | 🚫 Markets are only collateralized in ETH.  | ✅ Markets are collateralized in any arbitrary ERC-20 token. |
+| **Denomination tokens**   | 🚫 Markets are only collateralized in ETH.                                                                               | ✅ Markets are collateralized in any arbitrary ERC-20 token.                                                                                                                          |
 | **Complete sets**         | ✅ Complete sets of ERC20 outcome tokens can be created by escrowing ETH. Complete sets can also be settled at any time. | ✅ Complete sets of ERC20 outcome tokens can be created by escrowing whatever the denomination token of the universe is (default Dai). Complete sets can also be settled at any time. |
-| **Trading and liquidity** | ✅ Orders are created and maintained on-chain. A custom order matching engine matches and executes trades.               | 🚫 No trading happens through the protocol. The ERC20 outcome tokens should be traded on other protocols like 0x or Hydro. Relayers like Veil, BlitzPredict, or Flux can provide UX.   |
-| **Oracle**                | ✅ Users stake REP tokens on a weekly cadence to determine the outcome of markets.                                       | 🚫 No oracle is built into the protocol. Instead, markets have a resolver which can reference any oracle—an Augur market, Chainlink feed, or any arbitrary smart contract state.       |
+| **Trading and liquidity** | ✅ Orders are created and maintained on-chain. A custom order matching engine matches and executes trades.               | 🚫 No trading happens through the protocol. The ERC20 outcome tokens should be traded on other protocols like 0x or Hydro. Relayers like Veil, BlitzPredict, or Flux can provide UX.  |
+| **Oracle**                | ✅ Users stake REP tokens on a weekly cadence to determine the outcome of markets.                                       | 🚫 No oracle is built into the protocol. Instead, markets have a resolver which can reference any oracle—an Augur market, Chainlink feed, or any arbitrary smart contract state.      |
 | **Settlement**            | ✅ Once the oracle report is finalized, users can redeem their outcome tokens for their portion of the escrowed ETH.     | ✅ Once the market is resolved, users can redeem their outcome tokens for their portion of the escrowed currency.                                                                     |
-
-
 
 If you're looking for a more in-depth list of changes, please check the [CHANGELOG](https://github.com/veilco/augur-lite/CHANGELOG.md) filed.
 
@@ -123,15 +132,16 @@ Solidity smart contracts reside in `source/contracts`. Specifically:
 
 ## TODOs
 
--   Simplify the smart contract folder structure. `reporting`/`trading` distinction doesn't make sense anymore
--   Possibly remove denomination token from markets, and only use the universe denomination token. Currently, denomination token is redundantly stored.
 -   Update tests to take new Universe initialization into account
 
 ## Additional resources
+
 Here is a short collection of resources and guides to better understand the Augur ecosystem:
-- [Augur.Guide](https://augur.guide/)
-- [A guide to Augur market economics](https://medium.com/veil-blog/a-guide-to-augur-market-economics-16c66d956b6c)
-- [Off-chain trading with Augur and 0x](https://medium.com/veil-blog/off-chain-trading-with-augur-and-0x-e2f0c05db3bd)
+
+-   [Augur.Guide](https://augur.guide/)
+-   [A guide to Augur market economics](https://medium.com/veil-blog/a-guide-to-augur-market-economics-16c66d956b6c)
+-   [Off-chain trading with Augur and 0x](https://medium.com/veil-blog/off-chain-trading-with-augur-and-0x-e2f0c05db3bd)
 
 ## Question and support
-If you have questions, comments, or ideas, don't hesitate to open an issue in this repository, reach out to [@veil on Twitter](https://twitter.com/veil), send an email to [hello@veil.co](mailto:hello@veil.co), or [join Veil's discord](https://discord.gg/aBfTCVU). 
+
+If you have questions, comments, or ideas, don't hesitate to open an issue in this repository, reach out to [@veil on Twitter](https://twitter.com/veil), send an email to [hello@veil.co](mailto:hello@veil.co), or [join Veil's discord](https://discord.gg/aBfTCVU).

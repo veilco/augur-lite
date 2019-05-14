@@ -1,11 +1,11 @@
 pragma solidity 0.4.26;
 
-import 'trading/IShareToken.sol';
+import 'IMarket.sol';
+import 'IShareToken.sol';
 import 'libraries/DelegationTarget.sol';
 import 'libraries/token/VariableSupplyToken.sol';
 import 'libraries/ITyped.sol';
 import 'libraries/Initializable.sol';
-import 'reporting/IMarket.sol';
 
 
 contract ShareToken is DelegationTarget, ITyped, Initializable, VariableSupplyToken, IShareToken {

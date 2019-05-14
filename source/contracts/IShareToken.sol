@@ -1,8 +1,8 @@
 pragma solidity 0.4.26;
 
+import 'IMarket.sol';
 import 'libraries/ITyped.sol';
 import 'libraries/token/ERC20.sol';
-import 'reporting/IMarket.sol';
 
 
 contract IShareToken is ITyped, ERC20 {

@@ -1,11 +1,11 @@
 pragma solidity 0.4.26;
 
+import 'IMailbox.sol';
+import 'IMarket.sol';
 import 'libraries/DelegationTarget.sol';
 import 'libraries/Ownable.sol';
 import 'libraries/token/ERC20Basic.sol';
 import 'libraries/Initializable.sol';
-import 'reporting/IMailbox.sol';
-import 'reporting/IMarket.sol';
 
 
 contract Mailbox is DelegationTarget, Ownable, Initializable, IMailbox {

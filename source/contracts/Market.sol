@@ -1,18 +1,18 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IMarket.sol';
+import 'IMarket.sol';
+import 'IMailbox.sol';
+import 'IUniverse.sol';
+import 'IShareToken.sol';
 import 'libraries/DelegationTarget.sol';
 import 'libraries/ITyped.sol';
 import 'libraries/Initializable.sol';
 import 'libraries/Ownable.sol';
-import 'reporting/IUniverse.sol';
 import 'libraries/token/ERC20.sol';
-import 'trading/IShareToken.sol';
-import 'factories/ShareTokenFactory.sol';
 import 'libraries/math/SafeMathUint256.sol';
 import 'libraries/math/SafeMathInt256.sol';
-import 'reporting/IMailbox.sol';
 import 'factories/MailboxFactory.sol';
+import 'factories/ShareTokenFactory.sol';
 
 
 contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {

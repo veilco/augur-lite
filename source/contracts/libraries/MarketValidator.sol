@@ -1,6 +1,7 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IMarket.sol';
+import 'IMarket.sol';
+import 'IUniverse.sol';
 import 'Controlled.sol';
 
 

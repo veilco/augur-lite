@@ -1,9 +1,9 @@
 pragma solidity 0.4.26;
 
+import 'IController.sol';
+import 'IUniverse.sol';
 import 'libraries/Delegator.sol';
 import 'libraries/token/ERC20.sol';
-import 'IController.sol';
-import 'reporting/IUniverse.sol';
 
 
 contract UniverseFactory {

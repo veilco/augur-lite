@@ -1,13 +1,13 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IUniverse.sol';
+import 'IMarket.sol';
+import 'IUniverse.sol';
 import 'libraries/DelegationTarget.sol';
 import 'libraries/ITyped.sol';
 import 'libraries/Initializable.sol';
-import 'factories/MarketFactory.sol';
-import 'reporting/IMarket.sol';
 import 'libraries/math/SafeMathUint256.sol';
 import 'libraries/token/ERC20.sol';
+import 'factories/MarketFactory.sol';
 
 
 contract Universe is DelegationTarget, Initializable, ITyped, IUniverse {

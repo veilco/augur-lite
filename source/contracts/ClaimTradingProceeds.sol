@@ -1,9 +1,9 @@
 pragma solidity 0.4.26;
 
 import 'Controlled.sol';
+import 'IMarket.sol';
 import 'libraries/ReentrancyGuard.sol';
 import 'libraries/MarketValidator.sol';
-import 'reporting/IMarket.sol';
 import 'libraries/token/ERC20.sol';
 import 'libraries/math/SafeMathUint256.sol';
 
