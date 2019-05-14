@@ -130,10 +130,6 @@ Solidity smart contracts reside in `source/contracts`. Specifically:
 -   `source/contracts/reporting`: Contracts for managing universes and creating/managing markets.
 -   `source/contracts/trading`: Contracts to issue and close out complete sets of shares, and for traders to claim proceeds after markets are resolved.
 
-## TODOs
-
--   Update tests to take new Universe initialization into account
-
 ## Additional resources
 
 Here is a short collection of resources and guides to better understand the Augur ecosystem:

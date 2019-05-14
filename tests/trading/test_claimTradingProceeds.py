@@ -51,18 +51,18 @@ def resolveMarket(fixture, market, payoutNumerators, invalid=False):
     market.resolve(payoutNumerators, invalid)
     fixture.contracts["Time"].setTimestamp(market.getResolutionTime() + 1)
 
-# def test_helpers(kitchenSinkFixture, scalarMarket):
-#     market = scalarMarket
-#     claimTradingProceeds = kitchenSinkFixture.contracts['ClaimTradingProceeds']
-#     resolveMarket(kitchenSinkFixture, market, [0,40*10**4])
+def test_helpers(kitchenSinkFixture, scalarMarket):
+    market = scalarMarket
+    claimTradingProceeds = kitchenSinkFixture.contracts['ClaimTradingProceeds']
+    resolveMarket(kitchenSinkFixture, market, [0,40*10**4])
 
-#     assert claimTradingProceeds.calculateCreatorFee(market.address, fix('3')) == fix('0.03')
-#     assert claimTradingProceeds.calculateProceeds(market.address, YES, 7) == 7 * market.getNumTicks()
-#     assert claimTradingProceeds.calculateProceeds(market.address, NO, fix('11')) == fix('0')
-#     (proceeds, shareholderShare, creatorShare) = claimTradingProceeds.divideUpWinnings(market.address, YES, 13)
-#     assert proceeds == 13.0 * market.getNumTicks()
-#     assert creatorShare == 13.0 * market.getNumTicks() * 0.01
-#     assert shareholderShare == 13.0 * market.getNumTicks() * 0.99
+    assert claimTradingProceeds.calculateCreatorFee(market.address, fix('3')) == fix('0.03')
+    assert claimTradingProceeds.calculateProceeds(market.address, YES, 7) == 7 * market.getNumTicks()
+    assert claimTradingProceeds.calculateProceeds(market.address, NO, fix('11')) == fix('0')
+    (proceeds, shareholderShare, creatorShare) = claimTradingProceeds.divideUpWinnings(market.address, YES, 13)
+    assert proceeds == 13.0 * market.getNumTicks()
+    assert creatorShare == 13.0 * market.getNumTicks() * 0.01
+    assert shareholderShare == 13.0 * market.getNumTicks() * 0.99
 
 def test_redeem_shares_in_yesNo_market(kitchenSinkFixture, universe, testNetDenominationToken, market):
     claimTradingProceeds = kitchenSinkFixture.contracts['ClaimTradingProceeds']
@@ -70,19 +70,14 @@ def test_redeem_shares_in_yesNo_market(kitchenSinkFixture, universe, testNetDeno
     noShareToken = kitchenSinkFixture.applySignature('ShareToken', market.getShareToken(NO))
     expectedValue = 1 * market.getNumTicks()
     expectedMarketCreatorFees = expectedValue / market.getMarketCreatorSettlementFeeDivisor()
-    print expectedMarketCreatorFees
     expectedSettlementFees = expectedMarketCreatorFees
     expectedPayout = long(expectedValue - expectedSettlementFees)
-
-    # assert universe.getOpenInterestInAttoEth() == 0
 
     print testNetDenominationToken.balanceOf(tester.a1)
     # get YES shares with a1
     acquireLongShares(kitchenSinkFixture, testNetDenominationToken, market, YES, 1, claimTradingProceeds.address, sender = tester.k1)
-    # assert universe.getOpenInterestInAttoEth() == 1 * market.getNumTicks()
     # get NO shares with a2
     acquireShortShareSet(kitchenSinkFixture, testNetDenominationToken, market, YES, 1, claimTradingProceeds.address, sender = tester.k2)
-    # assert universe.getOpenInterestInAttoEth() == 2 * market.getNumTicks()
     resolveMarket(kitchenSinkFixture, market, [0,10**4])
 
     initialLongHolderToken = testNetDenominationToken.balanceOf(tester.a1)
@@ -130,22 +125,16 @@ def test_redeem_shares_in_categorical_market(isInvalid, kitchenSinkFixture, univ
     if (isInvalid):
         expectedPayout += 1 # rounding errors
 
-    # assert universe.getOpenInterestInAttoEth() == 0
-
     # get long shares with a1
     acquireLongShares(kitchenSinkFixture, testNetDenominationToken, market, 2, 1, claimTradingProceeds.address, sender = tester.k1)
-    # assert universe.getOpenInterestInAttoEth() == 1 * numTicks
     # get short shares with a2
     acquireShortShareSet(kitchenSinkFixture, testNetDenominationToken, market, 2, 1, claimTradingProceeds.address, sender = tester.k2)
-    # assert universe.getOpenInterestInAttoEth() == 2 * numTicks
 
     if (isInvalid):
         invalidPayout = numTicks / 3
         resolveMarket(kitchenSinkFixture, market, [invalidPayout, invalidPayout, invalidPayout], True)
     else:
         resolveMarket(kitchenSinkFixture, market, [0, 0, numTicks])
-
-    # assert universe.getOpenInterestInAttoEth() == 0
 
     # redeem shares with a1
     initialLongHolderToken = testNetDenominationToken.balanceOf(tester.a1)
@@ -174,14 +163,10 @@ def test_redeem_shares_in_scalar_market(kitchenSinkFixture, universe, testNetDen
     expectedSettlementFees = expectedValue * 0.01
     expectedPayout = long(expectedValue - expectedSettlementFees)
 
-    # assert universe.getOpenInterestInAttoEth() == 0
-
     # get YES shares with a1
     acquireLongShares(kitchenSinkFixture, testNetDenominationToken, market, YES, 1, claimTradingProceeds.address, sender = tester.k1)
-    # assert universe.getOpenInterestInAttoEth() == 1 * market.getNumTicks()
     # get NO shares with a2
     acquireShortShareSet(kitchenSinkFixture, testNetDenominationToken, market, YES, 1, claimTradingProceeds.address, sender = tester.k2)
-    # assert universe.getOpenInterestInAttoEth() == 2 * market.getNumTicks()
     resolveMarket(kitchenSinkFixture, market, [10**5, 3*10**5])
 
     # redeem shares with a1
