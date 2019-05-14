@@ -20,7 +20,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   using SafeMathInt256 for int256;
 
   // Constants
-  uint256 private constant MAX_FEE_PER_ETH_IN_ATTOETH = 1 ether / 2;
+  uint256 private constant MIN_FEE_DIVISOR = 2; // Corresponds to 50% fee
   uint256 private constant APPROVAL_AMOUNT = 2 ** 256 - 1;
   address private constant NULL_ADDRESS = address(0);
   uint256 private constant MIN_OUTCOMES = 2;
@@ -42,13 +42,13 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   uint256[] private payoutNumerators;
   IShareToken[] private shareTokens;
 
-  function initialize(IUniverse _universe, uint256 _endTime, uint256 _feePerEthInAttoeth, ERC20 _denominationToken, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public onlyInGoodTimes beforeInitialized returns (bool _success) {
+  function initialize(IUniverse _universe, uint256 _endTime, uint256 _feeDivisor, ERC20 _denominationToken, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public onlyInGoodTimes beforeInitialized returns (bool _success) {
     endInitialization();
     require(MIN_OUTCOMES <= _numOutcomes && _numOutcomes <= MAX_OUTCOMES);
     require(_numTicks > 0);
     require(_oracle != NULL_ADDRESS);
     require((_numTicks >= _numOutcomes));
-    require(_feePerEthInAttoeth <= MAX_FEE_PER_ETH_IN_ATTOETH);
+    require(_feeDivisor == 0 || _feeDivisor >= MIN_FEE_DIVISOR);
     require(_creator != NULL_ADDRESS);
     require(controller.getTimestamp() < _endTime);
     require(IUniverse(_universe).getDenominationToken() == _denominationToken);
@@ -58,7 +58,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
     endTime = _endTime;
     numOutcomes = _numOutcomes;
     numTicks = _numTicks;
-    feeDivisor = _feePerEthInAttoeth == 0 ? 0 : 1 ether / _feePerEthInAttoeth;
+    feeDivisor = _feeDivisor;
     denominationToken = _denominationToken;
     oracle = _oracle;
     marketCreatorMailbox = MailboxFactory(controller.lookup("MailboxFactory")).createMailbox(controller, owner, this);
