@@ -126,3 +126,12 @@ Solidity smart contracts reside in `source/contracts`. Specifically:
 -   Simplify the smart contract folder structure. `reporting`/`trading` distinction doesn't make sense anymore
 -   Possibly remove denomination token from markets, and only use the universe denomination token. Currently, denomination token is redundantly stored.
 -   Update tests to take new Universe initialization into account
+
+## Additional resources
+Here is a short collection of resources and guides to better understand the Augur ecosystem:
+- [Augur.Guide](https://augur.guide/)
+- [A guide to Augur market economics](https://medium.com/veil-blog/a-guide-to-augur-market-economics-16c66d956b6c)
+- [Off-chain trading with Augur and 0x](https://medium.com/veil-blog/off-chain-trading-with-augur-and-0x-e2f0c05db3bd)
+
+## Question and support
+If you have questions, comments, or ideas, don't hesitate to open an issue in this repository, reach out to [@veil on Twitter](https://twitter.com/veil), send an email to [hello@veil.co](mailto:hello@veil.co), or [join Veil's discord](https://discord.gg/aBfTCVU). 
