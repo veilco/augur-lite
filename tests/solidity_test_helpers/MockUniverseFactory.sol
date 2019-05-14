@@ -2,7 +2,7 @@ pragma solidity 0.4.26;
 
 import 'libraries/Delegator.sol';
 import 'IController.sol';
-import 'reporting/IUniverse.sol';
+import 'IUniverse.sol';
 
 
 contract MockUniverseFactory {

@@ -1,7 +1,7 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IMarket.sol';
-import 'reporting/IUniverse.sol';
+import 'IMarket.sol';
+import 'IUniverse.sol';
 import 'libraries/ITyped.sol';
 import 'libraries/Initializable.sol';
 import 'libraries/math/SafeMathUint256.sol';

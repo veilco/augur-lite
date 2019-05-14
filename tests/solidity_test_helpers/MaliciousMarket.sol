@@ -1,8 +1,8 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IMarket.sol';
-import 'reporting/IUniverse.sol';
-import 'trading/IShareToken.sol';
+import 'IMarket.sol';
+import 'IUniverse.sol';
+import 'IShareToken.sol';
 import 'libraries/token/ERC20.sol';
 
 

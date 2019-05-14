@@ -105,13 +105,6 @@ def test_getUint256Max(testerContractsFixture):
     safeMathUint256Tester = testerContractsFixture.contracts['SafeMathUint256Tester']
     assert safeMathUint256Tester.getUint256Max() == (2**256)-1
 
-@mark.parametrize('a, b, base, expectedResult', [
-    ((2**(256) - 1), (2**(256) - 1), 10**18, "TransactionFailed"),
-    (10**18, 0, 10**18, 0),
-    (10**18, 1, 10**18, 1),
-    (10**18, 2, 10**18, 2)
-])
-
 @mark.parametrize('a, b, expectedResult', [
     (1, 1, True),
     (2, 1, True),

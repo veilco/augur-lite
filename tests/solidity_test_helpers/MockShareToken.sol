@@ -1,11 +1,10 @@
 pragma solidity 0.4.26;
 
-
-import 'trading/IShareToken.sol';
+import 'IShareToken.sol';
 import 'libraries/DelegationTarget.sol';
 import 'libraries/ITyped.sol';
 import 'libraries/Initializable.sol';
-import 'reporting/IMarket.sol';
+import 'IMarket.sol';
 import 'TEST/MockVariableSupplyToken.sol';
 
 
