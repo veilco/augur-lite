@@ -5,12 +5,12 @@ contract Initializable {
   bool private initialized = false;
 
   modifier afterInitialized {
-    require(initialized);
+    require(initialized, "The contract is not initialized");
     _;
   }
 
   modifier beforeInitialized {
-    require(!initialized);
+    require(!initialized, "The contract is already initialized");
     _;
   }
 

@@ -2,12 +2,12 @@ pragma solidity 0.4.26;
 
 import 'Controlled.sol';
 import 'IAugurLite.sol';
+import 'IUniverse.sol';
+import 'IMarket.sol';
+import 'IMailbox.sol';
+import 'IShareToken.sol';
 import 'libraries/token/ERC20.sol';
 import 'factories/UniverseFactory.sol';
-import 'reporting/IUniverse.sol';
-import 'reporting/IMarket.sol';
-import 'reporting/IMailbox.sol';
-import 'trading/IShareToken.sol';
 
 
 // Centralized approval authority and event emissions
@@ -54,8 +54,8 @@ contract AugurLite is Controlled, IAugurLite {
   //
 
   function trustedTransfer(ERC20 _token, address _from, address _to, uint256 _amount) public onlyWhitelistedCallers returns (bool) {
-    require(_amount > 0);
-    require(_token.transferFrom(_from, _to, _amount));
+    require(_amount > 0, "Transfer amount needs to be greater than 0");
+    require(_token.transferFrom(_from, _to, _amount), "Tranfer failed");
     return true;
   }
 
@@ -65,24 +65,24 @@ contract AugurLite is Controlled, IAugurLite {
 
   // This signature is intended for the categorical market creation. We use two signatures for the same event because of stack depth issues which can be circumvented by maintaining order of paramaters
   function logMarketCreated(bytes32 _topic, string _description, string _extraInfo, IUniverse _universe, address _market, address _marketCreator, bytes32[] _outcomes, int256 _minPrice, int256 _maxPrice, IMarket.MarketType _marketType) public returns (bool) {
-    require(isKnownUniverse(_universe));
-    require(_universe == IUniverse(msg.sender));
+    require(isKnownUniverse(_universe), "The universe is not known");
+    require(_universe == IUniverse(msg.sender), "Sender is not the universe contract");
     emit MarketCreated(_topic, _description, _extraInfo, _universe, _market, _marketCreator, _outcomes, 0, _minPrice, _maxPrice, _marketType);
     return true;
   }
 
   // This signature is intended for yesNo and scalar market creation. See function comment above for explanation.
   function logMarketCreated(bytes32 _topic, string _description, string _extraInfo, IUniverse _universe, address _market, address _marketCreator, int256 _minPrice, int256 _maxPrice, IMarket.MarketType _marketType) public returns (bool) {
-    require(isKnownUniverse(_universe));
-    require(_universe == IUniverse(msg.sender));
+    require(isKnownUniverse(_universe), "The universe is not known");
+    require(_universe == IUniverse(msg.sender), "Sender is not the universe contract");
     emit MarketCreated(_topic, _description, _extraInfo, _universe, _market, _marketCreator, new bytes32[](0), 0, _minPrice, _maxPrice, _marketType);
     return true;
   }
 
   function logMarketResolved(IUniverse _universe) public returns (bool) {
-    require(isKnownUniverse(_universe));
+    require(isKnownUniverse(_universe), "The universe is not known");
     IMarket _market = IMarket(msg.sender);
-    require(_universe.isContainerForMarket(_market));
+    require(_universe.isContainerForMarket(_market), "Market does not belong to the universe");
     emit MarketResolved(_universe, _market);
     return true;
   }
@@ -103,53 +103,53 @@ contract AugurLite is Controlled, IAugurLite {
   }
 
   function logShareTokensTransferred(IUniverse _universe, address _from, address _to, uint256 _value) public returns (bool) {
-    require(isKnownUniverse(_universe));
+    require(isKnownUniverse(_universe), "The universe is not known");
     IShareToken _shareToken = IShareToken(msg.sender);
-    require(_universe.isContainerForShareToken(_shareToken));
+    require(_universe.isContainerForShareToken(_shareToken), "ShareToken does not belong to the universe");
     emit TokensTransferred(_universe, msg.sender, _from, _to, _value, TokenType.ShareToken, _shareToken.getMarket());
     return true;
   }
 
   function logShareTokenBurned(IUniverse _universe, address _target, uint256 _amount) public returns (bool) {
-    require(isKnownUniverse(_universe));
+    require(isKnownUniverse(_universe), "The universe is not known");
     IShareToken _shareToken = IShareToken(msg.sender);
-    require(_universe.isContainerForShareToken(_shareToken));
+    require(_universe.isContainerForShareToken(_shareToken), "ShareToken does not belong to the universe");
     emit TokensBurned(_universe, msg.sender, _target, _amount, TokenType.ShareToken, _shareToken.getMarket());
     return true;
   }
 
   function logShareTokenMinted(IUniverse _universe, address _target, uint256 _amount) public returns (bool) {
-    require(isKnownUniverse(_universe));
+    require(isKnownUniverse(_universe), "The universe is not known");
     IShareToken _shareToken = IShareToken(msg.sender);
-    require(_universe.isContainerForShareToken(_shareToken));
+    require(_universe.isContainerForShareToken(_shareToken), "ShareToken does not belong to the universe");
     emit TokensMinted(_universe, msg.sender, _target, _amount, TokenType.ShareToken, _shareToken.getMarket());
     return true;
   }
 
   function logTimestampSet(uint256 _newTimestamp) public returns (bool) {
-    require(msg.sender == controller.lookup("Time"));
+    require(msg.sender == controller.lookup("Time"), "Sender is not the Time contract");
     emit TimestampSet(_newTimestamp);
     return true;
   }
 
   function logMarketTransferred(IUniverse _universe, address _from, address _to) public returns (bool) {
-    require(isKnownUniverse(_universe));
+    require(isKnownUniverse(_universe), "The universe is not known");
     IMarket _market = IMarket(msg.sender);
-    require(_universe.isContainerForMarket(_market));
+    require(_universe.isContainerForMarket(_market), "Market does not belong to the universe");
     emit MarketTransferred(_universe, _market, _from, _to);
     return true;
   }
 
   function logMarketMailboxTransferred(IUniverse _universe, IMarket _market, address _from, address _to) public returns (bool) {
-    require(isKnownUniverse(_universe));
-    require(_universe.isContainerForMarket(_market));
-    require(IMailbox(msg.sender) == _market.getMarketCreatorMailbox());
+    require(isKnownUniverse(_universe), "The universe is not known");
+    require(_universe.isContainerForMarket(_market), "Market does not belong to the universe");
+    require(IMailbox(msg.sender) == _market.getMarketCreatorMailbox(), "Sender is not the market creator mailbox");
     emit MarketMailboxTransferred(_universe, _market, msg.sender, _from, _to);
     return true;
   }
 
   function logEscapeHatchChanged(bool _isOn) public returns (bool) {
-    require(msg.sender == address(controller));
+    require(msg.sender == address(controller), "Sender is not the controller");
     emit EscapeHatchChanged(_isOn);
     return true;
   }

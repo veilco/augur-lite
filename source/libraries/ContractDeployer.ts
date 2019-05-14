@@ -372,9 +372,9 @@ Deploying to: ${networkConfiguration.networkName}
   private async whitelistTradingContracts(): Promise<void> {
     console.log("Whitelisting contracts...");
     const promises: Array<Promise<any>> = [];
+    const contractsToWhitelist = ["ClaimTradingProceeds", "CompleteSets"];
     for (let contract of this.contracts) {
-      if (!contract.relativeFilePath.startsWith("trading/")) continue;
-      if (contract.contractName === "ShareToken") continue;
+      if (!contractsToWhitelist.includes(contract.contractName)) continue;
       if (contract.address === undefined)
         throw new Error(
           `Attempted to whitelist ${
@@ -484,6 +484,12 @@ Deploying to: ${networkConfiguration.networkName}
       [networkId: string]: ContractAddressMapping;
     };
 
+    const tradingContracts = [
+      "ClaimTradingProceeds",
+      "CompleteSets",
+      "ShareToken"
+    ];
+
     const mapping: ContractAddressMapping = {};
     mapping["Controller"] = this.controller.address;
     if (this.universe) mapping["Universe"] = this.universe.address;
@@ -491,7 +497,7 @@ Deploying to: ${networkConfiguration.networkName}
       throw new Error(`AugurLite not uploaded.`);
     mapping["AugurLite"] = this.contracts.get("AugurLite").address!;
     for (let contract of this.contracts) {
-      if (!contract.relativeFilePath.startsWith("trading/")) continue;
+      if (!tradingContracts.includes(contract.contractName)) continue;
       if (/^I[A-Z].*/.test(contract.contractName)) continue;
       if (contract.address === undefined)
         throw new Error(`${contract.contractName} not uploaded.`);

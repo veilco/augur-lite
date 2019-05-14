@@ -24,7 +24,7 @@ contract TestNetDenominationToken is DelegationTarget, ITyped, VariableSupplyTok
   }
 
   function withdrawEtherInternal(address _from, address _to, uint256 _amount) private returns(bool) {
-    require(_amount > 0 && _amount <= balances[_from]);
+    require(_amount > 0 && _amount <= balances[_from], "Invalid amount to withdraw");
     burn(_from, _amount);
     _to.transfer(_amount);
     assert(address(this).balance >= totalSupply());

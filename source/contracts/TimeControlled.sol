@@ -1,8 +1,8 @@
 pragma solidity 0.4.26;
 
 import 'ITime.sol';
-import 'libraries/Ownable.sol';
 import 'Controller.sol';
+import 'libraries/Ownable.sol';
 
 
 contract TimeControlled is ITime, Ownable {

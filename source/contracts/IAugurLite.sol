@@ -1,8 +1,8 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IUniverse.sol';
+import 'IMarket.sol';
+import 'IUniverse.sol';
 import 'libraries/token/ERC20.sol';
-import 'reporting/IMarket.sol';
 
 
 contract IAugurLite {

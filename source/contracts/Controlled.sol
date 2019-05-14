@@ -13,27 +13,27 @@ contract Controlled is IControlled {
   }
 
   modifier onlyWhitelistedCallers {
-    require(controller.assertIsWhitelisted(msg.sender));
+    require(controller.assertIsWhitelisted(msg.sender), "Sender is not whitelisted");
     _;
   }
 
   modifier onlyCaller(bytes32 _key) {
-    require(msg.sender == controller.lookup(_key));
+    require(msg.sender == controller.lookup(_key), "Sender is not the contract");
     _;
   }
 
   modifier onlyControllerCaller {
-    require(IController(msg.sender) == controller);
+    require(IController(msg.sender) == controller, "Sender is not the controller");
     _;
   }
 
   modifier onlyInGoodTimes {
-    require(controller.stopInEmergency());
+    require(controller.stopInEmergency(), "Emergency stop is activate");
     _;
   }
 
   modifier onlyInBadTimes {
-    require(controller.onlyInEmergency());
+    require(controller.onlyInEmergency(), "Emergency stop is not activate");
     _;
   }
 
