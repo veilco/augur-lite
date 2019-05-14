@@ -69,6 +69,8 @@ If you're looking for a more in-depth list of changes, please review the [CHANGE
 
 You need system-wide installations of [Python 3.7.3](https://www.python.org/downloads/release/python-373/), [Node.js 10.12](https://nodejs.org/en/blog/release/v10.12.0/), and [Solidity 0.4.26](https://github.com/ethereum/solidity/releases/tag/v0.4.26). On MacOS, you also need to use [venv](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) for package management.
 
+Setting up a specific `solc` version could get tricky. We recommend using [Homebrew](https://github.com/ethereum/homebrew-ethereum/blob/master/solidity.rb), and following [this guide](https://gist.github.com/zulhfreelancer/26daf8c04569d1cd98841ef8a4e8d948) to help install the latest `0.4.xx` version of Solidity.
+
 To setup venv:
 
 ```bash
@@ -82,12 +84,11 @@ You can switch away from your environment with:
 deactivate
 ```
 
-Once your Python setup is complete, install the dependencies:
+Once your Python setup is complete, install JS dependencies with [yarn](https://yarnpkg.com/en/):
 
 ```bash
 yarn add npx
 yarn
-pip install -r requirements.txt
 ```
 
 ## Deployment
