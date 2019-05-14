@@ -6,9 +6,9 @@
 
 AugurLite is a protocol for creating and resolving prediction market contracts on Ethereum. Each prediction market is a smart contract with a chosen denomination token, such as [Dai](https://makerdao.com/dai/). Denomination tokens can be escrowed in a market in exchange for a set of outcome tokens, each of which is an [ERC-20 token](https://en.wikipedia.org/wiki/ERC-20). The outcome tokens can be traded or exchanged on platforms like [Veil](https://veil.co), and ultimately redeemed for a portion of the escrowed denomination tokens once the chosen oracle resolves the market.
 
-## AugurLite Contracts
+## Overview
 
-The best way of explaining the AugurLite concepts may be discussing each smart contract that is part of the protocol. Here is a breakdown.
+To explain AugurLite concepts, we will discuss each smart contract that makes up the protocol. Here is the breakdown.
 
 #### AugurLite [`Go to code`](/source/contracts/AugurLite.sol)
 
@@ -135,7 +135,18 @@ Solidity smart contracts reside in [`source/contracts`](/source/contracts). Ther
 
 ## Oracles and custom resolvers
 
-TODO
+By design, AugurLite does not come packaged with an oracle system. An oracle is some sort of mechanism for bringing information from the real-world onto a blockchain, enabling smart contracts to respond to it. Here are some popular oracle systems:
+
+-   [Augur](http://augur.net/)
+-   [Chainlink](https://chain.link/)
+-   [Verity](https://verity.network/)
+-   [Witnet](https://witnet.io)
+-   [Polaris](https://medium.com/marbleorg/introducing-polaris-ced195dd798e)
+
+One goal of AugurLite is to decouple markets from their oracles. Not every market needs to be reviewed by the Augur reporting community. And an oracle for data feeds should be designed differently from an oracle for one-off events. Therefore, markets in AugurLite simply designate an Ethereum address that has the power to resolve them. That oracle address could be a trusted third-party, a smart contract that can observe state from an oracle and pass it along to AugurLite, or something else entirely.
+
+#### Example: OracleBridge
+As an example, Veil uses a smart contract called [`OracleBridge`](https://github.com/veilco/veil-contracts/blob/master/contracts/OracleBridge.sol) to observe the result of Augur markets and resolve AugurLite markets accordingly. The `OracleBridge` address is set as the oracle for [Veil's 2020 US Presidential Election markets](https://veil.co/2020) in order to abstract away various oracle systems. Read more in [Veil's smart contracts repository](https://github.com/veilco/veil-contracts).
 
 ## Additional resources
 
@@ -145,7 +156,7 @@ Here is a short collection of resources and guides to better understand the Augu
 -   [A guide to Augur market economics](https://medium.com/veil-blog/a-guide-to-augur-market-economics-16c66d956b6c)
 -   [Off-chain trading with Augur and 0x](https://medium.com/veil-blog/off-chain-trading-with-augur-and-0x-e2f0c05db3bd)
 
-## Question and support
+## Questions and support
 
 If you have questions, comments, or ideas, we recommend pursuing one of these channels:
 -   Open an issue or pull request in this repository
