@@ -5,9 +5,8 @@
 ## Introduction
 AugurLite is a protocol for creating and resolving prediction market contracts on Ethereum. Each prediction market is a smart contract with a chosen denomination token, such as [Dai](https://makerdao.com/dai/). Denomination tokens can be escrowed in the market in exchange for a set of outcome tokens, each of which is an [ERC-20 token](https://en.wikipedia.org/wiki/ERC-20). The outcome tokens can be traded or exchanged on platforms like [Veil](https://veil.co), and ultimately redeemed for a portion of the escrowed denomination tokens.
 
-The best way of explaining the AugurLite concepts may be discussing each smart contract that is part of the protocol. Here is a breakdown.
-
 ## AugurLite Contracts
+The best way of explaining the AugurLite concepts may be discussing each smart contract that is part of the protocol. Here is a breakdown.
 
 #### AugurLite [Go to code](https://github.com/veilco/augur-lite/blob/master/source/contracts/AugurLite.sol)
 This is the protocol's master contract. It is responsible for logging protocol-wide events, controlling transfers of denomination tokens, and creating the genesis universe using the UniverseFactory. This contract is a fork of Augur's [main contract](https://github.com/AugurProject/augur-core/blob/master/source/contracts/Augur.sol).
@@ -42,6 +41,8 @@ This contract is deployed per market and is owned by the market creator. It coll
 AugurLite uses UniverseFactory to create the genesis universe. The Universe contract uses MarketFactory to create new markets. Upon deployment, market contracts use MailboxFactory to create the market creator mailbox, and ShareTokenFactory to create outcome tokens.
 
 ## Comparison
+Here is a table that highlights the main differences between Augur and AugurLite. 
+
 |                       | <img src="https://statrader.com/wp-content/uploads/2018/05/Augur-Logo.png" height="100px" />|<img src="https://augurlite.com/static/logo.png" height="100px" />|
 |-----------------------|----------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | **Market creation**       | ✅ Anyone can create a market, but they must deposit ETH and REP to do so.                                               | ✅ Anyone can create a market, and there is no fee or deposit for doing so.                                                                                                           |
@@ -50,28 +51,7 @@ AugurLite uses UniverseFactory to create the genesis universe. The Universe cont
 | **Oracle**                | ✅ Users stake REP tokens on a weekly cadence to determine the outcome of markets.                                       | 🚫 No oracle is built into the protocol. Instead, markets have a resolver which can reference any oracle—an Augur market, Chainlink feed, or any arbitrary smart contract state.       |
 | **Settlement**            | ✅ Once the oracle report is finalized, users can redeem their outcome tokens for their portion of the escrowed ETH.     | ✅ Once the market is resolved, users can redeem their outcome tokens for their portion of the escrowed currency.                                                                     |
 
-## High-level Changes
 
--   AugurLite removes all on-chain trading logic. AugurLite simply acts as an escrow layer, converting money into transferable share tokens and back.
-    -   As part of this change, all trading contracts except `ClaimTradingProceeds` and `CompleteSets` have been removed.
-    -   Because there is no on-chain trading, controller contracts like `TradingEscapeHatch` has been removed.
--   AugurLite is oracle agnostic. That means there is no reporting or dispute process at the base protocol. During market creation, an “oracle” address is specified. This “oracle” can resolve a market upon expiration, and the result is final. Without a reporting/dispute process:
-    -   There’s no need for a native token (ie REP in Augur).
-    -   There’s no need for a concept like `ReportingParticipants` or `DisputeCrowdsourcers`. There is a single address (“oracle”), that can resolve markets (with a single “resolve” call), and all the resolution details are stored on the market.
-    -   There are no reporting fees. This means creating markets on AugurLite does not require validity or no-show bonds, and is much cheaper. Users only pay market creator fees that are deducted when users sell complete sets or claim trading proceeds.
-    -   There are no fee windows or fee tokens. The single “oracle” address has the final say on the resolution of the market.
-    -   There’s no concept of forking. There’s a single genesis universe which contains all markets and all share tokens. This universe keeps track of open interest across markets.
--   AugurLite markets can you use any ERC-20 compliant token as denomination tokens, not just CASH. Unlike Augur, the denomination token is specified at the Universe level. What this means is, every market created within a Universe will have the same denomination token. Following this change, all the open interest tracking at the Universe level is removed.
--   Augur contracts were written in Solidity version 0.4.20. AugurLite contracts are updated to use the most recent stable version of version 0.4.xx: 0.4.26.
--   Following all the changes above, the deployment and testing scripts are much simpler and more streamlined.
-
-While the origin Augur V1 codebase is massive, the main changes were made to following 5 contracts:
-
--   source/contracts/reporting/Mailbox.sol
--   source/contracts/reporting/Market.sol
--   source/contracts/reporting/Universe.sol
--   source/contracts/trading/ClaimTradingProceeds.sol
--   source/contracts/trading/CompleteSets.sol
 
 If you're looking for a more in-depth list of changes, please check the [CHANGELOG](https://github.com/veilco/augur-lite/CHANGELOG.md) filed.
 
