@@ -392,21 +392,21 @@ class ContractsFixture:
         shareToken = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['ShareToken']), shareTokenAddress)
         return shareToken
 
-    def createYesNoMarket(self, universe, endTime, feePerEthInWei, denominationToken, oracle, sender=tester.k0, topic="", description="description", extraInfo=""):
-        marketAddress = universe.createYesNoMarket(endTime, feePerEthInWei, denominationToken.address, oracle, topic, description, extraInfo, sender=sender)
+    def createYesNoMarket(self, universe, endTime, feeDivisor, denominationToken, oracle, sender=tester.k0, topic="", description="description", extraInfo=""):
+        marketAddress = universe.createYesNoMarket(endTime, feeDivisor, denominationToken.address, oracle, topic, description, extraInfo, sender=sender)
         assert marketAddress
         market = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Market']), marketAddress)
         return market
 
-    def createCategoricalMarket(self, universe, numOutcomes, endTime, feePerEthInWei, denominationToken, oracle, sender=tester.k0, topic="", description="description", extraInfo=""):
+    def createCategoricalMarket(self, universe, numOutcomes, endTime, feeDivisor, denominationToken, oracle, sender=tester.k0, topic="", description="description", extraInfo=""):
         outcomes = [" "] * numOutcomes
-        marketAddress = universe.createCategoricalMarket(endTime, feePerEthInWei, denominationToken.address, oracle, outcomes, topic, description, extraInfo, sender=sender)
+        marketAddress = universe.createCategoricalMarket(endTime, feeDivisor, denominationToken.address, oracle, outcomes, topic, description, extraInfo, sender=sender)
         assert marketAddress
         market = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Market']), marketAddress)
         return market
 
-    def createScalarMarket(self, universe, endTime, feePerEthInWei, denominationToken, maxPrice, minPrice, numTicks, oracle, sender=tester.k0, description="description", extraInfo=""):
-        marketAddress = universe.createScalarMarket(endTime, feePerEthInWei, denominationToken.address, oracle, minPrice, maxPrice, numTicks, "", description, extraInfo, sender=sender)
+    def createScalarMarket(self, universe, endTime, feeDivisor, denominationToken, maxPrice, minPrice, numTicks, oracle, sender=tester.k0, description="description", extraInfo=""):
+        marketAddress = universe.createScalarMarket(endTime, feeDivisor, denominationToken.address, oracle, minPrice, maxPrice, numTicks, "", description, extraInfo, sender=sender)
         assert marketAddress
         market = ABIContract(self.chain, ContractTranslator(ContractsFixture.signatures['Market']), marketAddress)
         return market
@@ -415,7 +415,7 @@ class ContractsFixture:
         return self.createYesNoMarket(
             universe = universe,
             endTime = long(self.contracts["Time"].getTimestamp() + timedelta(days=1).total_seconds()),
-            feePerEthInWei = 10**16,
+            feeDivisor = 100,
             denominationToken = denominationToken,
             oracle = tester.a0,
             sender = sender,
@@ -428,7 +428,7 @@ class ContractsFixture:
             universe = universe,
             numOutcomes = numOutcomes,
             endTime = long(self.contracts["Time"].getTimestamp() + timedelta(days=1).total_seconds()),
-            feePerEthInWei = 10**16,
+            feeDivisor = 100,
             denominationToken = denominationToken,
             oracle = tester.a0,
             sender = sender)
@@ -437,7 +437,7 @@ class ContractsFixture:
         return self.createScalarMarket(
             universe = universe,
             endTime = long(self.contracts["Time"].getTimestamp() + timedelta(days=1).total_seconds()),
-            feePerEthInWei = 10**16,
+            feeDivisor = 100,
             denominationToken = denominationToken,
             maxPrice= maxPrice,
             minPrice= minPrice,

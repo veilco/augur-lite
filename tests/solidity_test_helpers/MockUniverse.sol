@@ -36,6 +36,10 @@ contract MockUniverse is Initializable, IUniverse {
     setIsContainerForShareTokenValue = _setIsContainerForShareTokenValue;
   }
 
+  function setDenominationToken(ERC20 _denominationToken) public {
+    denominationToken = _denominationToken;
+  }
+
   /*
   * Impl of IUniverse and ITyped
    */

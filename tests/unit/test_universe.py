@@ -4,7 +4,7 @@ from utils import longToHexString, stringToBytes, twentyZeros, thirtyTwoZeros, b
 from pytest import fixture, raises
 
 def test_universe_creation(localFixture):
-    universe = localFixture.upload('../source/contracts/reporting/Universe.sol', 'newUniverse')
+    universe = localFixture.upload('../source/contracts/Universe.sol', 'newUniverse')
     universe.setController(localFixture.contracts['Controller'].address)
     assert universe.getTypeName() == stringToBytes('Universe')
 
@@ -56,7 +56,7 @@ def localSnapshot(fixture, augurInitializedWithMocksSnapshot):
     controller.registerContract(stringToBytes('UniverseFactory'), mockUniverseFactory.address, twentyZeros, thirtyTwoZeros)
     mockUniverse = fixture.contracts['MockUniverse']
 
-    universe = fixture.upload('../source/contracts/reporting/Universe.sol', 'universe')
+    universe = fixture.upload('../source/contracts/Universe.sol', 'universe')
     fixture.contracts['populatedUniverse'] = universe
     universe.setController(fixture.contracts['Controller'].address)
 

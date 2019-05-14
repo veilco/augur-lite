@@ -21,36 +21,39 @@ def test_market_creation(contractsFixture, universe, testNetDenominationToken, m
     assert market.getUniverse() == universe.address
     assert market.getNumberOfOutcomes() == 2
     assert numTicks == 10000
-    assert market.getPayoutDistributionHash() == stringToBytes("")
+    assert market.isResolved() == False
     assert market.getInitialized()
+    feeDivisor = 100
 
     with raises(TransactionFailed, message="Cannot create a market with an end date in the past"):
-        contractsFixture.createYesNoMarket(universe, 0, 1, testNetDenominationToken, tester.a0)
+        contractsFixture.createYesNoMarket(universe, 0, feeDivisor, testNetDenominationToken, tester.a0)
 
 def test_description_requirement(contractsFixture, universe, testNetDenominationToken):
     endTime = contractsFixture.contracts["Time"].getTimestamp() + 1
+    feeDivisor = 100
 
     with raises(TransactionFailed):
-        contractsFixture.createYesNoMarket(universe, endTime, 1, testNetDenominationToken, tester.a0, description="")
+        contractsFixture.createYesNoMarket(universe, endTime, feeDivisor, testNetDenominationToken, tester.a0, description="")
 
     with raises(TransactionFailed):
-        contractsFixture.createCategoricalMarket(universe, 2, endTime, 1, testNetDenominationToken, tester.a0, description="")
+        contractsFixture.createCategoricalMarket(universe, 2, endTime, feeDivisor, testNetDenominationToken, tester.a0, description="")
 
     with raises(TransactionFailed):
-        contractsFixture.createScalarMarket(universe, endTime, 1, testNetDenominationToken, 0, 1, 10000, tester.a0, description="")
+        contractsFixture.createScalarMarket(universe, endTime, feeDivisor, testNetDenominationToken, 0, 1, 10000, tester.a0, description="")
 
 def test_categorical_market_creation(contractsFixture, universe, testNetDenominationToken):
     endTime = contractsFixture.contracts["Time"].getTimestamp() + 1
+    feeDivisor = 100
 
     with raises(TransactionFailed):
-        contractsFixture.createCategoricalMarket(universe, 1, endTime, 1, testNetDenominationToken, tester.a0)
+        contractsFixture.createCategoricalMarket(universe, 1, endTime, feeDivisor, testNetDenominationToken, tester.a0)
 
-    assert contractsFixture.createCategoricalMarket(universe, 3, endTime, 1, testNetDenominationToken, tester.a0)
-    assert contractsFixture.createCategoricalMarket(universe, 4, endTime, 1, testNetDenominationToken, tester.a0)
-    assert contractsFixture.createCategoricalMarket(universe, 5, endTime, 1, testNetDenominationToken, tester.a0)
-    assert contractsFixture.createCategoricalMarket(universe, 6, endTime, 1, testNetDenominationToken, tester.a0)
-    assert contractsFixture.createCategoricalMarket(universe, 7, endTime, 1, testNetDenominationToken, tester.a0)
-    assert contractsFixture.createCategoricalMarket(universe, 8, endTime, 1, testNetDenominationToken, tester.a0)
+    assert contractsFixture.createCategoricalMarket(universe, 3, endTime, feeDivisor, testNetDenominationToken, tester.a0)
+    assert contractsFixture.createCategoricalMarket(universe, 4, endTime, feeDivisor, testNetDenominationToken, tester.a0)
+    assert contractsFixture.createCategoricalMarket(universe, 5, endTime, feeDivisor, testNetDenominationToken, tester.a0)
+    assert contractsFixture.createCategoricalMarket(universe, 6, endTime, feeDivisor, testNetDenominationToken, tester.a0)
+    assert contractsFixture.createCategoricalMarket(universe, 7, endTime, feeDivisor, testNetDenominationToken, tester.a0)
+    assert contractsFixture.createCategoricalMarket(universe, 8, endTime, feeDivisor, testNetDenominationToken, tester.a0)
 
 def test_num_ticks_validation(contractsFixture, universe, testNetDenominationToken):
     # Require numTicks != 0

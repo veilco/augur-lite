@@ -5,29 +5,32 @@ from ethereum.tools.tester import TransactionFailed
 
 numTicks = 10 ** 10
 def test_market_creation(localFixture, mockUniverse, mockTestNetDenominationToken, chain, mockMarket, mockShareToken, mockShareTokenFactory):
-    fee = 16
-    oneEther = 10 ** 18
+    feeDivisor = 100
+    minFeeDivisor = 2
     endTime = localFixture.contracts["Time"].getTimestamp() + 259200
-    market = localFixture.upload('../source/contracts/reporting/Market.sol', 'newMarket')
+    market = localFixture.upload('../source/contracts/Market.sol', 'newMarket')
     market.setController(localFixture.contracts["Controller"].address)
 
     with raises(TransactionFailed, message="outcomes has to be greater than 1"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 1, numTicks)
+        market.initialize(mockUniverse.address, endTime, feeDivisor, mockTestNetDenominationToken.address, tester.a1, tester.a1, 1, numTicks)
 
     with raises(TransactionFailed, message="outcomes has to be less than 9"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 9, numTicks)
+        market.initialize(mockUniverse.address, endTime, feeDivisor, mockTestNetDenominationToken.address, tester.a1, tester.a1, 9, numTicks)
 
-    with raises(TransactionFailed, message="fee per eth can not be greater than max fee per eth in attoEth"):
-        market.initialize(mockUniverse.address, endTime, oneEther / 2 + 1, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
+    with raises(TransactionFailed, message="feeDivisor cannot be between 0 and 2"):
+        market.initialize(mockUniverse.address, endTime, minFeeDivisor - 1, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
 
     with raises(TransactionFailed, message="creator address can not be 0"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, longToHexString(0), tester.a1, 5, numTicks)
+        market.initialize(mockUniverse.address, endTime, feeDivisor, mockTestNetDenominationToken.address, longToHexString(0), tester.a1, 5, numTicks)
 
     with raises(TransactionFailed, message="oracle address can not be 0"):
-        market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, longToHexString(0), 5, numTicks)
+        market.initialize(mockUniverse.address, endTime, feeDivisor, mockTestNetDenominationToken.address, tester.a1, longToHexString(0), 5, numTicks)
+
+    with raises(TransactionFailed, message="denomination token cannot be different from universe denomination token"):
+        market.initialize(mockUniverse.address, endTime, feeDivisor, "0x0000000000000000000000000000000000000000", tester.a1, longToHexString(0), 5, numTicks)
 
     mockShareTokenFactory.resetCreateShareToken()
-    assert market.initialize(mockUniverse.address, endTime, fee, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
+    assert market.initialize(mockUniverse.address, endTime, feeDivisor, mockTestNetDenominationToken.address, tester.a1, tester.a1, 5, numTicks)
     assert mockShareTokenFactory.getCreateShareTokenMarketValue() == market.address
     assert mockShareTokenFactory.getCreateShareTokenOutcomeValue() == 5 - 1 # mock logs the last outcome
     assert market.getTypeName() == stringToBytes("Market")
@@ -37,7 +40,7 @@ def test_market_creation(localFixture, mockUniverse, mockTestNetDenominationToke
     assert market.getEndTime() == endTime
     assert market.getNumTicks() == numTicks
     assert market.getDenominationToken() == mockTestNetDenominationToken.address
-    assert market.getMarketCreatorSettlementFeeDivisor() == oneEther / 16
+    assert market.getMarketCreatorSettlementFeeDivisor() == feeDivisor
     assert mockShareTokenFactory.getCreateShareTokenCounter() == 5
     assert mockShareTokenFactory.getCreateShareToken(0) == market.getShareToken(0)
     assert mockShareTokenFactory.getCreateShareToken(1) == market.getShareToken(1)
@@ -87,8 +90,9 @@ def localSnapshot(fixture, augurInitializedWithMocksSnapshot):
     mockShareTokenFactory.resetCreateShareToken()
 
     mockUniverse = fixture.contracts['MockUniverse']
+    mockUniverse.setDenominationToken(mockTestNetDenominationToken.address)
 
-    market = fixture.upload('../source/contracts/reporting/Market.sol', 'market')
+    market = fixture.upload('../source/contracts/Market.sol', 'market')
     fixture.contracts["initializedMarket"] = market
     endTime = fixture.contracts["Time"].getTimestamp() + 259200
     market.setController(fixture.contracts["Controller"].address)
