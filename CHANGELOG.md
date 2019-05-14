@@ -79,7 +79,11 @@ This is a list of contract modifications. If a contract name is not listed, it m
     -   `Market.sol`
         -   Originally located in `source/contract/reporting/Market.sol`
         -   Because the reporting/dispute process is replaced by a single oracle, there is a single `resolve` method. `doInitialReport` and `finalize` methods are removed. Following this, the functionality of `derivePayoutDistributionHash` as a way to verify resolution information is kept, but the `payoutDistributionHash` is removed.
-        -   TODO
+        -   `derivePayoutDistributionHash` is renamed to `verifyResolutionInformation`. The new method only verifies the validity of the resolution details (`invalid` flag and `payoutNumerators`)
+        -   `approveSpenders` method does not approve any of the trading contracts except `CompleteSets` and `ClaimTradingProceeds`
+        -   Market initialization now specifies `feeDivisor` instead of `feePerEthInAttoeth`. In Augur, `feePerEthInAttoeth` is used to calculate the `feeDivisor`, however the calculation used the number of decimals ETH-token had (18). As `augur-lite` can support arbitrary denomination tokens, this calculation is moved off-chain.
+            -   As part of this change, `MAX_FEE_PER_ETH_IN_ATTOETH` is replaced with `MIN_FEE_DIVISOR`. Now, the `feeDivisor` could be 0 (corresponding to no fees) or has to greater than or equal to 2. A `feeDivisor` of 2 corresponds to a 50% market creator fee (this limitation is also present in Augur). As an example, a `feeDivisor` of 100 corresponds to a 1% fee, and 200 corresponds to a 0.5% fee.
+        -   `designatedReporter` is replaced with the `oracle`. The helper methods that referenced `designatedReporter` (ie `getDesignatedReporter`) is renamed accordingly.
     -   `Universe.sol`
         -   Originally located in `source/contract/reporting/Universe.sol`
         -   Besides the method deletions listed under `IUniverse.sol`, all the relevant contract state variables are removed. Remaining variables are `markets` and `denominationToken` (recent addition).
@@ -160,7 +164,7 @@ This is a list of contract modifications. If a contract name is not listed, it m
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
     -   `token/VariableSupplyToken.sol`
         -   Per the compiler update, the events are now triggered with the `emit` keyword.
-        -   `Mint` and `Burn` events are replaced with `Transfer` events per the Zeppelin implementation.
+        -   `Mint` and `Burn` events are augmented with `Transfer` events per the Zeppelin implementation.
 
 ### Contract removals
 

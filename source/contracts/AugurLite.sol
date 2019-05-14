@@ -55,7 +55,7 @@ contract AugurLite is Controlled, IAugurLite {
 
   function trustedTransfer(ERC20 _token, address _from, address _to, uint256 _amount) public onlyWhitelistedCallers returns (bool) {
     require(_amount > 0, "Transfer amount needs to be greater than 0");
-    require(_token.transferFrom(_from, _to, _amount), "Tranfer failed");
+    require(_token.transferFrom(_from, _to, _amount), "Transfer failed");
     return true;
   }
 

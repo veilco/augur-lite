@@ -44,7 +44,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   function initialize(IUniverse _universe, uint256 _endTime, uint256 _feeDivisor, ERC20 _denominationToken, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public onlyInGoodTimes beforeInitialized returns (bool _success) {
     endInitialization();
-    require(MIN_OUTCOMES <= _numOutcomes && _numOutcomes <= MAX_OUTCOMES, "Invalid numTicks");
+    require(MIN_OUTCOMES <= _numOutcomes && _numOutcomes <= MAX_OUTCOMES, "Invalid number of outcomes");
     require(_numTicks > 0, "numTicks needs to be greater than 0");
     require(_oracle != NULL_ADDRESS, "Oracle cannot be the 0x0 address");
     require((_numTicks >= _numOutcomes), "numTicks needs to be greater than number of outcomes");

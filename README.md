@@ -92,21 +92,24 @@ pip install -r requirements.txt
 
 ## Deployment
 
-To deploy the contracts, you need to create an `.env` in the base directory. The specification for the `.env` file will depend on which Ethereum network you are deploying to. Review the [NetworkConfiguration file](/source/libraries/NetworkConfiguration.ts) to see all options. Or copy one of the examples below for common networks. Note the deployment address i
+To deploy the contracts, you need to create an `.env` in the base directory. The specification for the `.env` file will depend on which Ethereum network you are deploying to. Review the [NetworkConfiguration file](/source/libraries/NetworkConfiguration.ts) to see all options. Or copy one of the examples below for common networks.
 
 Sample `.env` file for Kovan:
+
 ```
 KOVAN_ETHEREUM_HTTP=https://eth-kovan.alchemyapi.io/jsonrpc/<INSERT API KEY>
 KOVAN_PRIVATE_KEY=<INSERT PRIVATE KEY OF ADDRESS DEPLOYING CONTRACTS>
 ```
 
 Sample `.env` file for Mainnet:
+
 ```
 MAINNET_ETHEREUM_HTTP=https://eth-mainnet.alchemyapi.io/jsonrpc/<INSERT API KEY>
 MAINNET_PRIVATE_KEY=<INSERT PRIVATE KEY OF ADDRESS DEPLOYING CONTRACTS>
 ```
 
 Now you should be able to compile contracts, build contract interfaces, and deploy contracts.
+
 ```bash
 yarn run build              # Compiles contracts and builds contract interfaces
 yarn run deploy:kovan       # Deploys contracts to Kovan
@@ -118,10 +121,12 @@ You can see a full list of helper functions to run with `yarn` in [package.json]
 Solidity contract deployment is handled by [`ContractDeployer.ts`](/source/libraries/ContractDeployer.ts) and the wrapper programs located in [`source/deployment`](/source/deployment). This deployment framework allows for incremental deploys of contracts to a given controller (specified via a configuration option). This allows us to deploy new contracts without touching the controller, effectively upgrading the deployed system in-place.
 
 #### Main Code
+
 -   [`source/libraries/ContractCompiler.ts`](/source/libraries/ContractCompiler.ts) - All logic for compiling contracts, generating ABI
 -   [`source/libraries/ContractDeployer.ts`](/source/libraries/ContractDeployer.ts) - All logic for uploading, initializing, and whitelisting contracts, generating addresses and block number outputs.
 
 #### Configuration
+
 -   [`source/libraries/CompilerConfiguration.ts`](/source/libraries/CompilerConfiguration.ts)
 -   [`source/libraries/DeployerConfiguration.ts`](/source/libraries/DeployerConfiguration.ts)
 -   [`source/libraries/NetworkConfiguration.ts`](/source/libraries/NetworkConfiguration.ts)
@@ -146,6 +151,7 @@ By design, AugurLite does not come packaged with an oracle system. An oracle is 
 One goal of AugurLite is to decouple markets from their oracles. Not every market needs to be reviewed by the Augur reporting community. And an oracle for data feeds should be designed differently from an oracle for one-off events. Therefore, markets in AugurLite simply designate an Ethereum address that has the power to resolve them. That oracle address could be a trusted third-party, a smart contract that can observe state from an oracle and pass it along to AugurLite, or something else entirely.
 
 #### Example: OracleBridge
+
 As an example, Veil uses a smart contract called [`OracleBridge`](https://github.com/veilco/veil-contracts/blob/master/contracts/OracleBridge.sol) to observe the result of Augur markets and resolve AugurLite markets accordingly. The `OracleBridge` address is set as the oracle for [Veil's 2020 US Presidential Election markets](https://veil.co/2020) in order to abstract away various oracle systems. Read more in [Veil's smart contracts repository](https://github.com/veilco/veil-contracts).
 
 ## Additional resources
@@ -159,10 +165,12 @@ Here is a short collection of resources and guides to better understand the Augu
 ## Questions and support
 
 If you have questions, comments, or ideas, we recommend pursuing one of these channels:
+
 -   Open an issue or pull request in this repository
 -   Reach out to [@veil on Twitter](https://twitter.com/veil)
 -   Send an email to [hello@veil.co](mailto:hello@veil.co)
 -   Join [Veil's discord](https://discord.gg/aBfTCVU) and reach out to a Veil team member
 
 ## License
+
 AugurLite is released under the GNU General Public License v3.0. [See License](/LICENSE).

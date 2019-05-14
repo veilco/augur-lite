@@ -16,6 +16,9 @@ contract MockVariableSupplyToken is MockStandardToken {
   address private transferFromToValue;
   uint256 private transferFromValueValue;
 
+  event Mint(address indexed target, uint256 value);
+  event Burn(address indexed target, uint256 value);
+
   function setBalanceOf(uint256 _balance) public {
     setBalanceOfValue = _balance;
   }
