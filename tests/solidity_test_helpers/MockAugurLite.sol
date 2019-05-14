@@ -2,9 +2,9 @@ pragma solidity 0.4.26;
 
 import 'Controlled.sol';
 import 'libraries/token/ERC20.sol';
-import 'reporting/IUniverse.sol';
-import 'reporting/IMarket.sol';
-import 'trading/IShareToken.sol';
+import 'IUniverse.sol';
+import 'IMarket.sol';
+import 'IShareToken.sol';
 
 
 contract MockAugurLite is Controlled {

@@ -1,6 +1,6 @@
 pragma solidity 0.4.26;
 
-import 'reporting/IMarket.sol';
+import 'IMarket.sol';
 import 'libraries/token/ERC20.sol';
 import 'IController.sol';
 

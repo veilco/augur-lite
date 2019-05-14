@@ -335,11 +335,12 @@ class ContractsFixture:
                 self.upload(path.join(directory, filename), constructorArgs=constructorArgs)
 
     def whitelistTradingContracts(self):
-        for filename in listdir(resolveRelativePath('../source/contracts/trading')):
+        for filename in listdir(resolveRelativePath('../source/contracts')):
             name = path.splitext(filename)[0]
             extension = path.splitext(filename)[1]
             if extension != '.sol': continue
-            if name == "ShareToken": continue
+            if name != "CompleteSets": continue
+            if name != "ClaimTradingProceeds": continue
             if not name in self.contracts: continue
             self.contracts['Controller'].addToWhitelist(self.contracts[name].address)
 
