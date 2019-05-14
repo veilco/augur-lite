@@ -339,8 +339,7 @@ class ContractsFixture:
             name = path.splitext(filename)[0]
             extension = path.splitext(filename)[1]
             if extension != '.sol': continue
-            if name != "CompleteSets": continue
-            if name != "ClaimTradingProceeds": continue
+            if name != "CompleteSets" and name != "ClaimTradingProceeds": continue
             if not name in self.contracts: continue
             self.contracts['Controller'].addToWhitelist(self.contracts[name].address)
 
