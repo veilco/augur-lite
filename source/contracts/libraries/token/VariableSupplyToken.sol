@@ -6,6 +6,9 @@ import 'libraries/token/StandardToken.sol';
 contract VariableSupplyToken is StandardToken {
   using SafeMathUint256 for uint256;
 
+  event Mint(address indexed target, uint256 value);
+  event Burn(address indexed target, uint256 value);
+
   /**
   * @dev mint tokens for a specified address
   * @param _target The address to mint tokens for.
@@ -14,6 +17,7 @@ contract VariableSupplyToken is StandardToken {
   function mint(address _target, uint256 _amount) internal returns (bool) {
     balances[_target] = balances[_target].add(_amount);
     supply = supply.add(_amount);
+    emit Mint(_target, _amount);
     emit Transfer(address(0), _target, _amount);
     onMint(_target, _amount);
     return true;
@@ -27,6 +31,7 @@ contract VariableSupplyToken is StandardToken {
   function burn(address _target, uint256 _amount) internal returns (bool) {
     balances[_target] = balances[_target].sub(_amount);
     supply = supply.sub(_amount);
+    emit Burn(_target, _amount);
     emit Transfer(_target, address(0), _amount);
     onBurn(_target, _amount);
     return true;
