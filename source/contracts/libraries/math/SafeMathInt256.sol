@@ -12,24 +12,24 @@ library SafeMathInt256 {
 
   function mul(int256 a, int256 b) internal pure returns (int256) {
     int256 c = a * b;
-    require(a == 0 || c / a == b);
+    require(a == 0 || c / a == b, "Multiplication failed");
     return c;
   }
 
   function div(int256 a, int256 b) internal pure returns (int256) {
     // Solidity only automatically asserts when dividing by 0
-    require(b > 0);
+    require(b > 0, "Divisor should at least be 0");
     int256 c = a / b;
     return c;
   }
 
   function sub(int256 a, int256 b) internal pure returns (int256) {
-    require(((a >= 0) && (b >= a - INT256_MAX)) || ((a < 0) && (b <= a - INT256_MIN)));
+    require(((a >= 0) && (b >= a - INT256_MAX)) || ((a < 0) && (b <= a - INT256_MIN)), "Subtraction failed");
     return a - b;
   }
 
   function add(int256 a, int256 b) internal pure returns (int256) {
-    require(((a >= 0) && (b <= INT256_MAX - a)) || ((a < 0) && (b >= INT256_MIN - a)));
+    require(((a >= 0) && (b <= INT256_MAX - a)) || ((a < 0) && (b >= INT256_MIN - a)), "Addition failed");
     return a + b;
   }
 

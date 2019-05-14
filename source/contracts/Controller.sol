@@ -26,21 +26,21 @@ contract Controller is IController {
 
   constructor() public {
     owner = msg.sender;
-    addToWhitelist(msg.sender);
+    whitelist[msg.sender] = true;
   }
 
   modifier onlyOwnerCaller {
-    require(msg.sender == owner);
+    require(msg.sender == owner, "Sender is not the owner");
     _;
   }
 
   modifier onlyInBadTimes {
-    require(stopped);
+    require(stopped, "Emergency stop is not active");
     _;
   }
 
   modifier onlyInGoodTimes {
-    require(!stopped);
+    require(!stopped, "Emergency stop is active");
     _;
   }
 
@@ -59,12 +59,12 @@ contract Controller is IController {
   }
 
   function assertIsWhitelisted(address _target) public view returns (bool) {
-    require(whitelist[_target]);
+    require(whitelist[_target], "Target is not whitelisted");
     return true;
   }
 
   function registerContract(bytes32 _key, address _address, bytes20 _commitHash, bytes32 _bytecodeHash) public onlyOwnerCaller returns (bool) {
-    require(registry[_key].contractAddress == address(0));
+    require(registry[_key].contractAddress == address(0), "Contract is already registered");
     registry[_key] = ContractDetails(_key, _address, _commitHash, _bytecodeHash);
     return true;
   }

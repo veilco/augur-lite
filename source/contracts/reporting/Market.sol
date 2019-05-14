@@ -44,14 +44,14 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   function initialize(IUniverse _universe, uint256 _endTime, uint256 _feeDivisor, ERC20 _denominationToken, address _oracle, address _creator, uint256 _numOutcomes, uint256 _numTicks) public onlyInGoodTimes beforeInitialized returns (bool _success) {
     endInitialization();
-    require(MIN_OUTCOMES <= _numOutcomes && _numOutcomes <= MAX_OUTCOMES);
-    require(_numTicks > 0);
-    require(_oracle != NULL_ADDRESS);
-    require((_numTicks >= _numOutcomes));
-    require(_feeDivisor == 0 || _feeDivisor >= MIN_FEE_DIVISOR);
-    require(_creator != NULL_ADDRESS);
-    require(controller.getTimestamp() < _endTime);
-    require(IUniverse(_universe).getDenominationToken() == _denominationToken);
+    require(MIN_OUTCOMES <= _numOutcomes && _numOutcomes <= MAX_OUTCOMES, "Invalid numTicks");
+    require(_numTicks > 0, "numTicks needs to be greater than 0");
+    require(_oracle != NULL_ADDRESS, "Oracle cannot be the 0x0 address");
+    require((_numTicks >= _numOutcomes), "numTicks needs to be greater than number of outcomes");
+    require(_feeDivisor == 0 || _feeDivisor >= MIN_FEE_DIVISOR, "Invalid feeDivisor");
+    require(_creator != NULL_ADDRESS, "Market creator cannot be the 0x0 address");
+    require(controller.getTimestamp() < _endTime, "Market expiration is in the past");
+    require(IUniverse(_universe).getDenominationToken() == _denominationToken, "Market denominationToken does not match the universe denominationToken");
 
     universe = _universe;
     owner = _creator;
@@ -75,17 +75,17 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
 
   // This will need to be called manually for each open market if a spender contract is updated
   function approveSpenders() public onlyInGoodTimes returns (bool) {
-    require(denominationToken.approve(controller.lookup("CompleteSets"), APPROVAL_AMOUNT));
-    require(denominationToken.approve(controller.lookup("ClaimTradingProceeds"), APPROVAL_AMOUNT));
+    require(denominationToken.approve(controller.lookup("CompleteSets"), APPROVAL_AMOUNT), "Denomination token CompleteSets approval failed");
+    require(denominationToken.approve(controller.lookup("ClaimTradingProceeds"), APPROVAL_AMOUNT), "Denomination token ClaimTradingProceeds approval failed");
     return true;
   }
 
   function resolve(uint256[] _payoutNumerators, bool _invalid) public onlyInGoodTimes returns (bool) {
     uint256 _timestamp = controller.getTimestamp();
-    require(!isResolved());
-    require(_timestamp > endTime);
-    require(msg.sender == getOracle());
-    require(verifyResolutionInformation(_payoutNumerators, _invalid));
+    require(!isResolved(), "Market is already resolved");
+    require(_timestamp > endTime, "Market is not expired");
+    require(msg.sender == getOracle(), "Sender is not the oracle");
+    require(verifyResolutionInformation(_payoutNumerators, _invalid), "Invalid payoutNumerators");
 
     resolutionTime = _timestamp;
     payoutNumerators = _payoutNumerators;
@@ -129,7 +129,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   }
 
   function isInvalid() public view returns (bool) {
-    require(isResolved());
+    require(isResolved(), "Market is not resolved");
     return invalid;
   }
 
@@ -138,7 +138,7 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   }
 
   function getPayoutNumerator(uint256 _outcome) public view returns (uint256) {
-    require(isResolved());
+    require(isResolved(), "Market is not resolved");
     return payoutNumerators[_outcome];
   }
 
@@ -178,17 +178,17 @@ contract Market is DelegationTarget, ITyped, Initializable, Ownable, IMarket {
   function verifyResolutionInformation(uint256[] _payoutNumerators, bool _invalid) public view returns (bool) {
     uint256 _sum = 0;
     uint256 _previousValue = _payoutNumerators[0];
-    require(_payoutNumerators.length == numOutcomes);
+    require(_payoutNumerators.length == numOutcomes, "payoutNumerators array is missing outcomes");
     for (uint256 i = 0; i < _payoutNumerators.length; i++) {
       uint256 _value = _payoutNumerators[i];
       _sum = _sum.add(_value);
-      require(!_invalid || _value == _previousValue);
+      require(!_invalid || _value == _previousValue, "Wrong value in payoutNumerators for invalid market");
       _previousValue = _value;
     }
     if (_invalid) {
-      require(_previousValue == numTicks / numOutcomes);
+      require(_previousValue == numTicks / numOutcomes, "Wrong value in payoutNumerators for invalid market");
     } else {
-      require(_sum == numTicks);
+      require(_sum == numTicks, "payoutNumerators array does not sum to numTicks");
     }
     return true;
   }

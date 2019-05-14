@@ -17,7 +17,7 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
 
   function claimTradingProceeds(IMarket _market, address _shareHolder) marketIsLegit(_market) onlyInGoodTimes nonReentrant external returns(bool) {
     // NOTE: this requirement does _not_ enforce market finalization. That requirement occurs later on in this function when calling getPayoutNumerator. When this requirement is removed we may want to consider explicitly requiring it here (or modifying this comment and keeping the gas savings)
-    require(controller.getTimestamp() > _market.getResolutionTime());
+    require(controller.getTimestamp() > _market.getResolutionTime(), "Resolution time is not in the past");
 
     ERC20 denominationToken = _market.getDenominationToken();
 
@@ -35,10 +35,10 @@ contract ClaimTradingProceeds is ReentrancyGuard, MarketValidator {
         logTradingProceedsClaimed(_market, _shareToken, _shareHolder, _numberOfShares, _shareHolderShare);
       }
       if (_shareHolderShare > 0) {
-        require(denominationToken.transferFrom(_market, _shareHolder, _shareHolderShare));
+        require(denominationToken.transferFrom(_market, _shareHolder, _shareHolderShare), "Denomination token transfer failed");
       }
       if (_creatorShare > 0) {
-        require(denominationToken.transferFrom(_market, _market.getMarketCreatorMailbox(), _creatorShare));
+        require(denominationToken.transferFrom(_market, _market.getMarketCreatorMailbox(), _creatorShare), "Denomination token transfer failed");
       }
     }
 

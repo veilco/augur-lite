@@ -23,7 +23,7 @@ contract Ownable is IOwnable {
    * @dev Throws if called by any account other than the owner.
    */
   modifier onlyOwner() {
-    require(msg.sender == owner);
+    require(msg.sender == owner, "Sender is not the owner");
     _;
   }
 

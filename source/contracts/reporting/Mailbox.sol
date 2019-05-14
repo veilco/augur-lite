@@ -20,7 +20,7 @@ contract Mailbox is DelegationTarget, Ownable, Initializable, IMailbox {
 
   function withdrawTokens(ERC20Basic _token) public onlyOwner returns (bool) {
     uint256 _balance = _token.balanceOf(this);
-    require(_token.transfer(owner, _balance));
+    require(_token.transfer(owner, _balance), "Token transfer failed");
     return true;
   }
 

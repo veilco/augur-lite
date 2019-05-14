@@ -47,23 +47,23 @@ contract Universe is DelegationTarget, Initializable, ITyped, IUniverse {
   }
 
   function createYesNoMarket(uint256 _endTime, uint256 _feeDivisor, ERC20 _denominationToken, address _oracle, bytes32 _topic, string _description, string _extraInfo) public onlyInGoodTimes returns (IMarket _newMarket) {
-    require(bytes(_description).length > 0);
+    require(bytes(_description).length > 0, "Description is empty");
     _newMarket = createMarketInternal(_endTime, _feeDivisor, _denominationToken, _oracle, msg.sender, 2, 10000);
     controller.getAugurLite().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, 0, 1 ether, IMarket.MarketType.YES_NO);
     return _newMarket;
   }
 
   function createCategoricalMarket(uint256 _endTime, uint256 _feeDivisor, ERC20 _denominationToken, address _oracle, bytes32[] _outcomes, bytes32 _topic, string _description, string _extraInfo) public onlyInGoodTimes returns (IMarket _newMarket) {
-    require(bytes(_description).length > 0);
+    require(bytes(_description).length > 0, "Description is empty");
     _newMarket = createMarketInternal(_endTime, _feeDivisor, _denominationToken, _oracle, msg.sender, uint256(_outcomes.length), 10000);
     controller.getAugurLite().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, _outcomes, 0, 1 ether, IMarket.MarketType.CATEGORICAL);
     return _newMarket;
   }
 
   function createScalarMarket(uint256 _endTime, uint256 _feeDivisor, ERC20 _denominationToken, address _oracle, int256 _minPrice, int256 _maxPrice, uint256 _numTicks, bytes32 _topic, string _description, string _extraInfo) public onlyInGoodTimes returns (IMarket _newMarket) {
-    require(bytes(_description).length > 0);
-    require(_minPrice < _maxPrice);
-    require(_numTicks.isMultipleOf(2));
+    require(bytes(_description).length > 0, "Description is empty");
+    require(_minPrice < _maxPrice, "Min price needs to be less than max price");
+    require(_numTicks.isMultipleOf(2), "numTicks needs to a multiple of 2");
     _newMarket = createMarketInternal(_endTime, _feeDivisor, _denominationToken, _oracle, msg.sender, 2, _numTicks);
     controller.getAugurLite().logMarketCreated(_topic, _description, _extraInfo, this, _newMarket, msg.sender, _minPrice, _maxPrice, IMarket.MarketType.SCALAR);
     return _newMarket;
