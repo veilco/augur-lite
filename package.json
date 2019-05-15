@@ -1,6 +1,6 @@
 {
   "name": "augur-lite",
-  "version": "0.0.2",
+  "version": "1.0.1",
   "description": "Core AugurLite contracts and deployment process",
   "author": "Veil <hello@veil.co>",
   "repository": "http://github.com/veilco/augur-lite",

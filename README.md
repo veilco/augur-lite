@@ -65,6 +65,21 @@ Here is a table that highlights the main differences between Augur and AugurLite
 
 If you're looking for a more in-depth list of changes, please review the [CHANGELOG](/CHANGELOG.md) file.
 
+#### Current addresses of relevant contracts
+
+| Contract                                                                 | Commit                                                                                           | Ethereum Address                                                                                                      |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
+| [`AugurLite`](/source/contracts/AugurLite.sol)                           | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x5c025873f7aee04719b6c13fe453b5e446c7ed05](https://etherscan.io/address/0x5c025873f7aee04719b6c13fe453b5e446c7ed05) |
+| [`ClaimTradingProceeds`](/source/contracts/ClaimTradingProceeds.sol)     | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x32cfb05a69328ac6a2944fc35c48ecb9a448c31d](https://etherscan.io/address/0x32cfb05a69328ac6a2944fc35c48ecb9a448c31d) |
+| [`CompleteSets`](/source/contracts/CompleteSets.sol)                     | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x92e320330007aa538b0315297c2299fd746d6d8d](https://etherscan.io/address/0x92e320330007aa538b0315297c2299fd746d6d8d) |
+| [`Controller`](/source/contracts/Controller.sol)                         | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x23d27cc545503a6a1b7127c1a1a2777a38a2aa17](https://etherscan.io/address/0x23d27cc545503a6a1b7127c1a1a2777a38a2aa17) |
+| [`DAIUniverse`](/source/contracts/Universe.sol)                          | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0xba38540b0f2e11b3ac839b65756bcd8501ded215](https://etherscan.io/address/0xba38540b0f2e11b3ac839b65756bcd8501ded215) |
+| [`MailboxFactory`](/source/contracts/factories/MailboxFactory.sol)       | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x1e86d8a1c4287e4ea8566e42e02375b5a4caac44](https://etherscan.io/address/0x1e86d8a1c4287e4ea8566e42e02375b5a4caac44) |
+| [`MarketFactory`](/source/contracts/factories/MarketFactory.sol)         | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x2f5ef0fa22a008b1054a9a7f9b2c6e545ccf3873](https://etherscan.io/address/0x2f5ef0fa22a008b1054a9a7f9b2c6e545ccf3873) |
+| [`ShareTokenFactory`](/source/contracts/factories/ShareTokenFactory.sol) | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x739b21035799702474da538c3ed22c72415e5f5e](https://etherscan.io/address/0x739b21035799702474da538c3ed22c72415e5f5e) |
+| [`UniverseFactory`](/source/contracts/factories/UniverseFactory.sol)     | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0xb08ff5e8484c96d5db9b5fb157bcd3df81501ebb](https://etherscan.io/address/0xb08ff5e8484c96d5db9b5fb157bcd3df81501ebb) |
+| [`Time`](/source/contracts/Time.sol)                                     | [c9c0817cd1](https://github.com/veilco/augur-lite/tree/c9c0817cd196c554bc4bc6496561ec499f7dde78) | [0x8bc8a395671c1c200a56e4a7fd3fc74ee2620522](https://etherscan.io/address/0x8bc8a395671c1c200a56e4a7fd3fc74ee2620522) |
+
 ## Installation
 
 You need system-wide installations of [Python 3.7.3](https://www.python.org/downloads/release/python-373/), [Node.js 10.12](https://nodejs.org/en/blog/release/v10.12.0/), and [Solidity 0.4.26](https://github.com/ethereum/solidity/releases/tag/v0.4.26). On MacOS, you also need to use [venv](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) for package management.
